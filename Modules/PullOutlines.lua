@@ -262,7 +262,7 @@ end
 function VT:DrawHullCircle(x, y, size, color, alpha, layer, layerSublevel, pullIdx)
   local circle = getTexture()
   circle:SetDrawLayer(layer, layerSublevel)
-  circle:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Circle_White")
+  circle:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Circle_White")
   local a = alpha ~= 1 and 0 or alpha
   circle:SetVertexColor(color.r, color.g, color.b, a)
   circle:SetWidth(1.1 * size)
@@ -277,7 +277,7 @@ end
 
 function VT:DrawHullLine(x, y, a, b, size, color, alpha, smooth, layer, layerSublevel, lineFactor, pullIdx)
   local line = getTexture()
-  line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
+  line:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Square_White")
   line:SetVertexColor(color.r, color.g, color.b, alpha)
   DrawLine(line, VT.main_frame.mapPanelTile1, x, y, a, b, size, lineFactor and lineFactor or 1.1, "TOPLEFT")
   line:SetDrawLayer(layer, layerSublevel)

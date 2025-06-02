@@ -28,7 +28,7 @@ function VT:initToolbar(frame)
 
   frame.toolbar.toggleButton:SetPoint("LEFT", frame, "LEFT")
   frame.toolbar.toggleButton:SetSize(11, 32)
-  frame.toolbar.toggleButton:SetNormalTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\arrows")
+  frame.toolbar.toggleButton:SetNormalTexture("Interface\\AddOns\\VisionTools\\Textures\\arrows")
   frame.toolbar.toggleButton:GetNormalTexture():SetTexCoord(0.7, 1, 0, 1)
 
   frame.toolbar:Hide()
@@ -88,7 +88,7 @@ function VT:initToolbar(frame)
 
   ---back
   local back = AceGUI:Create("Icon")
-  back:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.5, 0.75, 0.5, 0.75)
+  back:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.5, 0.75, 0.5, 0.75)
   back:SetCallback("OnClick", function(widget, callbackName)
     self:PresetObjectStepBack()
   end)
@@ -99,7 +99,7 @@ function VT:initToolbar(frame)
 
   ---forward
   local forward = AceGUI:Create("Icon")
-  forward:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.75, 1, 0.5, 0.75)
+  forward:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.75, 1, 0.5, 0.75)
   forward:SetCallback("OnClick", function(widget, callbackName)
     self:PresetObjectStepForward()
   end)
@@ -120,7 +120,7 @@ function VT:initToolbar(frame)
   local sizeIndicator
   ---plus
   local plus = AceGUI:Create("Icon")
-  plus:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.25, 0.5, 0.5, 0.75)
+  plus:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.25, 0.5, 0.5, 0.75)
   plus:SetCallback("OnClick", function(widget, callbackName)
     db.toolbar.brushSize = db.toolbar.brushSize + 1
     sizeIndicator:SetText(db.toolbar.brushSize)
@@ -162,7 +162,7 @@ function VT:initToolbar(frame)
 
   ---minus
   local minus = AceGUI:Create("Icon")
-  minus:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0, 0.25, 0.5, 0.75)
+  minus:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0, 0.25, 0.5, 0.75)
   minus:SetCallback("OnClick", function(widget, callbackName)
     db.toolbar.brushSize = db.toolbar.brushSize - 1
     if db.toolbar.brushSize < 1 then db.toolbar.brushSize = 1 end
@@ -173,7 +173,7 @@ function VT:initToolbar(frame)
 
   ---pencil
   local pencil = AceGUI:Create("Icon")
-  pencil:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0, 0.25, 0, 0.25)
+  pencil:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0, 0.25, 0, 0.25)
   toolbarTools["pencil"] = pencil
   pencil:SetCallback("OnClick", function(widget, callbackName)
     if currentTool == "pencil" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("pencil") end
@@ -183,7 +183,7 @@ function VT:initToolbar(frame)
 
   ---line
   local line = AceGUI:Create("Icon")
-  line:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0, 0.25, 0.75, 1)
+  line:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0, 0.25, 0.75, 1)
   toolbarTools["line"] = line
   line:SetCallback("OnClick", function(widget, callbackName)
     if currentTool == "line" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("line") end
@@ -193,7 +193,7 @@ function VT:initToolbar(frame)
 
   ---arrow
   local arrow = AceGUI:Create("Icon")
-  arrow:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.25, 0.5, 0, 0.25)
+  arrow:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.25, 0.5, 0, 0.25)
   toolbarTools["arrow"] = arrow
   arrow:SetCallback("OnClick", function(widget, callbackName)
     if currentTool == "arrow" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("arrow") end
@@ -203,7 +203,7 @@ function VT:initToolbar(frame)
 
   ---note
   local note = AceGUI:Create("Icon")
-  note:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.75, 1, 0, 0.25)
+  note:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.75, 1, 0, 0.25)
   toolbarTools["note"] = note
   note:SetCallback("OnClick", function(widget, callbackName)
     if currentTool == "note" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("note") end
@@ -213,7 +213,7 @@ function VT:initToolbar(frame)
 
   ---mover
   local mover = AceGUI:Create("Icon")
-  mover:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.5, 0.75, 0, 0.25)
+  mover:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.5, 0.75, 0, 0.25)
   toolbarTools["mover"] = mover
   mover:SetCallback("OnClick", function(widget, callbackName)
     if currentTool == "mover" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("mover") end
@@ -223,10 +223,10 @@ function VT:initToolbar(frame)
 
   ---cogwheel
   local cogwheel = AceGUI:Create("Icon")
-  cogwheel:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0, 0.25, 0.25, 0.5)
+  cogwheel:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0, 0.25, 0.25, 0.5)
   cogwheel:SetCallback("OnClick", function(widget, callbackName)
-    InterfaceOptionsFrame_OpenToCategory("MythicDungeonTools")
-    InterfaceOptionsFrame_OpenToCategory("MythicDungeonTools")
+    InterfaceOptionsFrame_OpenToCategory("VisionTools")
+    InterfaceOptionsFrame_OpenToCategory("VisionTools")
     VT:HideInterface()
   end)
   cogwheel.tooltipText = L["Settings"]
@@ -234,7 +234,7 @@ function VT:initToolbar(frame)
 
   ---eraser
   local eraser = AceGUI:Create("Icon")
-  eraser:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.25, 0.5, 0.25, 0.5)
+  eraser:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.25, 0.5, 0.25, 0.5)
   toolbarTools["eraser"] = eraser
   eraser:SetCallback("OnClick", function(widget, callbackName)
     if currentTool == "eraser" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("eraser") end
@@ -244,7 +244,7 @@ function VT:initToolbar(frame)
 
   ---delete
   local delete = AceGUI:Create("Icon")
-  delete:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.25, 0.5, 0.75, 1)
+  delete:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.25, 0.5, 0.75, 1)
   delete:SetCallback("OnClick", function(widget, callbackName)
     local prompt = string.format(L["deleteAllDrawingsPrompt"], "\n", "\n", "\n")
     self:OpenConfirmationFrame(450, 150, L["Delete ALL drawings"], L["Delete"], prompt, function()
@@ -313,12 +313,12 @@ end
 
 ---CreateBrushPreview
 function VT:CreateBrushPreview(frame)
-  frame.brushPreview = CreateFrame("Frame", "MythicDungeonToolsBrushPreview", UIParent)
+  frame.brushPreview = CreateFrame("Frame", "VisionToolsBrushPreview", UIParent)
   frame.brushPreview:SetFrameStrata("HIGH")
   frame.brushPreview:SetFrameLevel(4)
   frame.brushPreview:SetSize(1, 1)
   frame.brushPreview.tex = frame.brushPreview:CreateTexture(nil, "OVERLAY", nil, 0)
-  frame.brushPreview.tex:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\ring")
+  frame.brushPreview.tex:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\ring")
   frame.brushPreview.tex:SetAllPoints()
 end
 
@@ -395,7 +395,7 @@ function VT:UpdateSelectedToolbarTool(widgetName)
   local widget = toolbarTools[widgetName]
   currentTool = widgetName
   toolbar.highlight = toolbar.highlight or toolbar:CreateTexture(nil, "OVERLAY", nil, 7)
-  toolbar.highlight:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons")
+  toolbar.highlight:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\icons")
   toolbar.highlight:SetTexCoord(0.5, 0.75, 0.25, 0.5)
   toolbar.highlight:SetSize(widget.frame:GetWidth(), widget.frame:GetWidth())
   toolbar.highlight:ClearAllPoints()
@@ -549,11 +549,11 @@ function VT:StartArrowDrawing()
   local frame = VT.main_frame
   local startx, starty = VT:GetCursorPosition()
   local line = getTexture()
-  line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
+  line:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Square_White")
   line:SetVertexColor(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b, db.toolbar.color.a)
   line:Show()
   local arrow = getTexture()
-  arrow:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\triangle")
+  arrow:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\triangle")
   arrow:SetVertexColor(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b, db.toolbar.color.a)
   line.isOwn = true
   arrow.isOwn = true
@@ -620,7 +620,7 @@ function VT:StartLineDrawing()
   local frame = VT.main_frame
   startx, starty = VT:GetCursorPosition()
   local line = getTexture()
-  line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
+  line:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Square_White")
   line:SetVertexColor(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b, db.toolbar.color.a)
   line.isOwn = true
   tinsert(activeTextures, line)
@@ -938,7 +938,7 @@ function VT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectInd
   local circle = tex or getTexture()
   if not layer then layer = objectDrawLayer end
   circle:SetDrawLayer(layer, layerSublevel)
-  circle:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Circle_White")
+  circle:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Circle_White")
   circle:SetVertexColor(color.r, color.g, color.b, color.a)
   circle:SetWidth(1.1 * size)
   circle:SetHeight(1.1 * size)
@@ -957,7 +957,7 @@ end
 function VT:DrawLine(x, y, a, b, size, color, smooth, layer, layerSublevel, lineFactor, isOwn, objectIndex)
   local line = getTexture()
   if not layer then layer = objectDrawLayer end
-  line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
+  line:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Square_White")
   line:SetVertexColor(color.r, color.g, color.b, color.a)
   DrawLine(line, VT.main_frame.mapPanelTile1, x, y, a, b, size, lineFactor and lineFactor or 1.1, "TOPLEFT")
   line:SetDrawLayer(layer, layerSublevel)
@@ -975,7 +975,7 @@ end
 function VT:DrawTriangle(x, y, rotation, size, color, layer, layerSublevel, isOwn, objectIndex)
   local triangle = getTexture()
   if not layer then layer = objectDrawLayer end
-  triangle:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\triangle")
+  triangle:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\triangle")
   triangle:SetVertexColor(color.r, color.g, color.b, color.a)
   triangle:Show()
   triangle:SetWidth(size)

@@ -15,14 +15,20 @@ local sizey = 555
 local framesInitialized, initFrames
 VT.externalLinks = {
   {
-    name = "GitHub",
+    name = "GitHub Original",
+    tooltip = L["Open an issue on GitHub"],
+    url = "https://github.com/Nnoggie/MythicDungeonTools/issues",
+    texture = { "Interface\\AddOns\\VisionTools\\Textures\\icons", 0.76, 1, 0.75, 1 }
+  },
+  {
+    name = "GitHub This Project",
     tooltip = L["Open an issue on GitHub"],
     url = "https://github.com/luckybwow/VisionTools/issues",
     texture = { "Interface\\AddOns\\VisionTools\\Textures\\icons", 0.76, 1, 0.75, 1 }
   },
 }
 
-BINDING_HEADER_VT = "Mythic Dungeon Tools (VT)"
+BINDING_HEADER_VT = "Vision Tools (VT)"
 BINDING_NAME_VTTOGGLE = L["Toggle VT"]
 
 local mythicColor = "|cFFFFFFFF"
@@ -50,7 +56,7 @@ end
 ---@diagnostic disable: missing-fields
 local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("VisionTools", {
   type = "data source",
-  text = "Mythic Dungeon Tools",
+  text = "Vision Tools",
   icon = "Interface\\AddOns\\"..AddonName.."\\Textures\\VTMinimap",
   OnClick = function(button, buttonPressed)
     if buttonPressed == "RightButton" then

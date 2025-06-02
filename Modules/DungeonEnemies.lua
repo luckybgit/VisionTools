@@ -501,7 +501,7 @@ function VTDungeonEnemyMixin:DisplayPatrol(shown)
       patrolLines[patrolIdx] = patrolLines[patrolIdx] or
           VT.main_frame.mapPanelFrame:CreateTexture("VTDungeonPatrolLine"..patrolIdx, "BACKGROUND", nil, 0)
       patrolLines[patrolIdx]:SetDrawLayer("OVERLAY", 1)
-      patrolLines[patrolIdx]:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
+      patrolLines[patrolIdx]:SetTexture("Interface\\AddOns\\VisionTools\\Textures\\Square_White")
       patrolLines[patrolIdx]:SetVertexColor(0, 0.2, 0.5, 0.6)
       patrolLines[patrolIdx]:Show()
 

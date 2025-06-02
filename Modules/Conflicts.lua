@@ -12,9 +12,9 @@ local candidates = {
     name = "Dungeon Tools",
     detected = false,
     onDetect = function()
-      SLASH_DUNGEONTOOLS1 = "/mplus"
-      SLASH_DUNGEONTOOLS2 = "/VT"
-      SLASH_DUNGEONTOOLS3 = "/dungeontools"
+      SLASH_DUNGEONTOOLS1 = "/vtools"
+      SLASH_DUNGEONTOOLS2 = "/vt"
+      SLASH_DUNGEONTOOLS3 = "/visiontools"
       function SlashCmdList.DUNGEONTOOLS(cmd, editbox)
         VT:Async(function() VT:ShowInterfaceInternal() end, "showInterface")
       end

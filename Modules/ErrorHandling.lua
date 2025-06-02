@@ -166,7 +166,7 @@ function VT:DisplayErrors(force)
     if VT.main_frame then
       --error button
       local errorButton = AceGUI:Create("Icon")
-      errorButton:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.76, 1, 0.25, 0.5)
+      errorButton:SetImage("Interface\\AddOns\\VisionTools\\Textures\\icons", 0.76, 1, 0.25, 0.5)
       errorButton:SetCallback("OnClick", function(widget, callbackName)
         VT:DisplayErrors("true")
       end)
