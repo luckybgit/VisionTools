@@ -1,4 +1,4 @@
-local MDT = MDT
+local VT = VT
 
 -- A Schema describes the structure of a table. In it you can define how
 -- tables should be exported to Lua. This makes it possible to
@@ -7,7 +7,7 @@ local MDT = MDT
 
 local schemas = {
   ["pois"] = {
-    name = "MDT.mapPOIs[dungeonIndex]",
+    name = "VT.mapPOIs[dungeonIndex]",
     type = "array",
     fields = {
       type = "array",
@@ -160,7 +160,7 @@ local schemas = {
     },
   },
   ["enemies"] = {
-    name = "MDT.dungeonEnemies[dungeonIndex]",
+    name = "VT.dungeonEnemies[dungeonIndex]",
     type = "array",
     fields = {
       type = "schemaArray",
@@ -554,6 +554,6 @@ local schemas = {
 }
 
 --- @param schemaName "enemies" | "pois"
-function MDT:GetSchema(schemaName)
+function VT:GetSchema(schemaName)
   return schemas[schemaName]
 end

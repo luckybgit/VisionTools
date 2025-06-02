@@ -1,7 +1,7 @@
-local MDT = MDT
+local VT = VT
 local AceGUI = LibStub("AceGUI-3.0")
 local db
-local L = MDT.L
+local L = VT.L
 
 -- The idea here is to redo the dungeon select dropdown to be more user friendly.
 -- This was necesarry as the old implementation did not allow for a dungeon to be part of multiple dungeon sets.
@@ -16,27 +16,27 @@ local L = MDT.L
 -- Open the folder BlizzardInterfaceArt in VSCode and search for the dungeon name
 -- To get names of dungeons: https://wow.tools/maps/ (search for dungeon name and then check the url)
 
-MDT.seasonList = {}
-MDT.dungeonSelectionToIndex = {}
+VT.seasonList = {}
+VT.dungeonSelectionToIndex = {}
 
 do
-  tinsert(MDT.seasonList, L["The War Within Season 1"])
-  tinsert(MDT.seasonList, L["The War Within Season 2"])
-  tinsert(MDT.dungeonSelectionToIndex, { 31, 35, 19, 110, 111, 112, 113, 114 })
-  tinsert(MDT.dungeonSelectionToIndex, { 115, 116, 117, 118, 119, 120, 121, 122 })
+  tinsert(VT.seasonList, L["The War Within Season 1"])
+  tinsert(VT.seasonList, L["The War Within Season 2"])
+  tinsert(VT.dungeonSelectionToIndex, { 31, 35, 19, 110, 111, 112, 113, 114 })
+  tinsert(VT.dungeonSelectionToIndex, { 115, 116, 117, 118, 119, 120, 121, 122 })
 end
 
-local seasonList = MDT.seasonList
-local dungeonSelectionToIndex = MDT.dungeonSelectionToIndex
+local seasonList = VT.seasonList
+local dungeonSelectionToIndex = VT.dungeonSelectionToIndex
 
-function MDT:GetSeasonList()
+function VT:GetSeasonList()
   return seasonList
 end
 
 local dungeonButtons = {}
 local BUTTON_SIZE = 40
 
-function MDT:UpdateDungeonSelectHighlight()
+function VT:UpdateDungeonSelectHighlight()
   for _, button in ipairs(dungeonButtons) do
     if button.dungeonIdx == db.currentDungeonIdx then
       button.selectedTexture:Show()
@@ -62,16 +62,16 @@ local formatTime = function(time)
   end
 end
 
-function MDT:UpdateDungeonDropDown()
+function VT:UpdateDungeonDropDown()
   local currentList = dungeonSelectionToIndex[db.selectedDungeonList]
   for idx, dungeonIdx in ipairs(currentList) do
     local button = dungeonButtons[idx]
     if not button then
-      dungeonButtons[idx] = CreateFrame("Button", "MDTDungeonButton"..idx, MDT.main_frame)
+      dungeonButtons[idx] = CreateFrame("Button", "VTDungeonButton"..idx, VT.main_frame)
       button = dungeonButtons[idx]
       button:SetSize(BUTTON_SIZE, BUTTON_SIZE)
       button:ClearAllPoints()
-      button:SetPoint("TOPLEFT", MDT.main_frame, "TOPLEFT", (idx - 1) * (BUTTON_SIZE - 1), 0)
+      button:SetPoint("TOPLEFT", VT.main_frame, "TOPLEFT", (idx - 1) * (BUTTON_SIZE - 1), 0)
       button.texture = button:CreateTexture()
       button.texture:SetAllPoints(button)
       button.texture:Show()
@@ -90,13 +90,13 @@ function MDT:UpdateDungeonDropDown()
         GameTooltip:Hide()
       end)
     end
-    local mapInfo = MDT.mapInfo[dungeonIdx]
+    local mapInfo = VT.mapInfo[dungeonIdx]
     button.dungeonIdx = dungeonIdx
     button.texture:SetTexture(mapInfo.iconId or C_Spell.GetSpellTexture(mapInfo.teleportId) or 134400)
     button.shortText:SetText(mapInfo.shortName)
     button:SetScript("OnClick", function(self, button)
-      MDT:UpdateToDungeon(dungeonIdx)
-      MDT:UpdateDungeonSelectHighlight()
+      VT:UpdateToDungeon(dungeonIdx)
+      VT:UpdateDungeonSelectHighlight()
     end)
     button:RegisterForClicks("AnyDown", "AnyUp")
     button:Show()
@@ -115,21 +115,21 @@ function MDT:UpdateDungeonDropDown()
         -- end
       end
       GameTooltip:SetOwner(dungeonButtons[idx], "ANCHOR_BOTTOMRIGHT", -dungeonButtons[idx]:GetWidth(), 0)
-      GameTooltip:AddLine(MDT.dungeonList[dungeonIdx], 1, 1, 1)
+      GameTooltip:AddLine(VT.dungeonList[dungeonIdx], 1, 1, 1)
       if timer then
         GameTooltip:AddLine(L["Timer"]..": "..formatTime(timer), 1, 1, 1)
       end
       GameTooltip:Show()
     end)
   end
-  MDT:UpdateDungeonSelectHighlight()
+  VT:UpdateDungeonSelectHighlight()
   for idx = #currentList + 1, #dungeonButtons do
     dungeonButtons[idx]:Hide()
   end
 
   local currentDungeonIdx = db.currentDungeonIdx
-  local sublevels = MDT.dungeonSubLevels[currentDungeonIdx]
-  local sublevelDropdown = MDT.main_frame.sublevelSelectionGroup.sublevelDropdown
+  local sublevels = VT.dungeonSubLevels[currentDungeonIdx]
+  local sublevelDropdown = VT.main_frame.sublevelSelectionGroup.sublevelDropdown
   sublevelDropdown:SetList(sublevels)
   sublevelDropdown:SetValue(db.presets[currentDungeonIdx][db.currentPreset[currentDungeonIdx]].value.currentSublevel)
   sublevelDropdown:ClearFocus()
@@ -141,8 +141,8 @@ function MDT:UpdateDungeonDropDown()
 end
 
 --for old maps that need it
-function MDT:CreateSublevelDropdown(frame)
-  db = MDT:GetDB()
+function VT:CreateSublevelDropdown(frame)
+  db = VT:GetDB()
   frame.sublevelSelectionGroup = AceGUI:Create("SimpleGroup")
   frame.sublevelSelectionGroup.frame:SetParent(frame)
   local group = frame.sublevelSelectionGroup
@@ -150,30 +150,30 @@ function MDT:CreateSublevelDropdown(frame)
   if not group.frame.SetBackdrop then
     Mixin(group.frame, BackdropTemplateMixin)
   end
-  group.frame:SetBackdropColor(unpack(MDT.BackdropColor))
+  group.frame:SetBackdropColor(unpack(VT.BackdropColor))
   group.frame:SetFrameStrata("HIGH")
   group.frame:SetFrameLevel(50)
   group:SetWidth(204) --idk ace added weird margin on left
   group:SetHeight(50)
   group:SetPoint("TOPLEFT", frame.topPanel, "TOPLEFT", 0, -68)
   group:SetLayout("List")
-  MDT:FixAceGUIShowHide(group)
+  VT:FixAceGUIShowHide(group)
 
   group.sublevelDropdown = AceGUI:Create("Dropdown")
   group.sublevelDropdown.pullout.frame:SetParent(group.sublevelDropdown.frame)
   group.sublevelDropdown.text:SetJustifyH("LEFT")
   group.sublevelDropdown:SetCallback("OnValueChanged", function(widget, callbackName, key)
     db.presets[db.currentDungeonIdx][db.currentPreset[db.currentDungeonIdx]].value.currentSublevel = key
-    MDT:UpdateMap()
+    VT:UpdateMap()
   end)
   group:AddChild(group.sublevelDropdown)
 end
 
-function MDT:SetDungeonList(key, dungeonIdx)
-  db = MDT:GetDB()
+function VT:SetDungeonList(key, dungeonIdx)
+  db = VT:GetDB()
   if dungeonIdx then
     -- find an index, first one should be the correct one
-    for listIdx, list in ipairs(MDT.dungeonSelectionToIndex) do
+    for listIdx, list in ipairs(VT.dungeonSelectionToIndex) do
       for _, dIdx in ipairs(list) do
         if dungeonIdx == dIdx and key == nil then
           key = listIdx
@@ -187,16 +187,16 @@ function MDT:SetDungeonList(key, dungeonIdx)
   -- this probably happens if dropdown is being spammed (?)
   local index = math.min(#dungeonSelectionToIndex, key)
   db.selectedDungeonList = index
-  local dropdown = MDT.main_frame.seasonSelectionGroup.seasonDropdown
+  local dropdown = VT.main_frame.seasonSelectionGroup.seasonDropdown
   dropdown:SetValue(index)
 end
 
-function MDT:CreateSeasonDropdown(frame)
+function VT:CreateSeasonDropdown(frame)
   if #seasonList == 1 then
     -- no dropdown needed
     return
   end
-  db = MDT:GetDB()
+  db = VT:GetDB()
   frame.seasonSelectionGroup = AceGUI:Create("SimpleGroup")
   frame.seasonSelectionGroup.frame:SetParent(frame)
   local group = frame.seasonSelectionGroup
@@ -204,23 +204,23 @@ function MDT:CreateSeasonDropdown(frame)
   if not group.frame.SetBackdrop then
     Mixin(group.frame, BackdropTemplateMixin)
   end
-  group.frame:SetBackdropColor(unpack(MDT.BackdropColor))
+  group.frame:SetBackdropColor(unpack(VT.BackdropColor))
   group.frame:SetFrameStrata("HIGH")
   group.frame:SetFrameLevel(50)
   group:SetWidth(204) --idk ace added weird margin on left
   group:SetHeight(50)
   group:SetPoint("TOPLEFT", frame.topPanel, "TOPLEFT", 0, 0)
   group:SetLayout("List")
-  MDT:FixAceGUIShowHide(group)
+  VT:FixAceGUIShowHide(group)
 
   group.seasonDropdown = AceGUI:Create("Dropdown")
   group.seasonDropdown.pullout.frame:SetParent(group.seasonDropdown.frame)
   group.seasonDropdown.text:SetJustifyH("LEFT")
   group.seasonDropdown:SetCallback("OnValueChanged", function(widget, callbackName, key)
-    MDT:SetDungeonList(key)
-    MDT:UpdateDungeonDropDown()
+    VT:SetDungeonList(key)
+    VT:UpdateDungeonDropDown()
     local currentList = dungeonSelectionToIndex[db.selectedDungeonList]
-    MDT:UpdateToDungeon(currentList[1])
+    VT:UpdateToDungeon(currentList[1])
   end)
   group:AddChild(group.seasonDropdown)
 
@@ -228,14 +228,14 @@ function MDT:CreateSeasonDropdown(frame)
   group.seasonDropdown:SetValue(db.selectedDungeonList)
 end
 
-function MDT:CheckSeenDungeonLists()
-  db = MDT:GetDB()
-  local defaultSavedVars = MDT:GetDefaultSavedVariables().global
+function VT:CheckSeenDungeonLists()
+  db = VT:GetDB()
+  local defaultSavedVars = VT:GetDefaultSavedVariables().global
   local latestDungeon = defaultSavedVars.currentDungeonIdx
   local latestSeen = db.latestDungeonSeen
   if latestSeen ~= latestDungeon then
     -- find list
-    for listIndex, list in pairs(MDT.dungeonSelectionToIndex) do
+    for listIndex, list in pairs(VT.dungeonSelectionToIndex) do
       for _, dngIdx in pairs(list) do
         if dngIdx == latestDungeon then
           db.latestDungeonSeen = latestDungeon

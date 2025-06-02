@@ -1,15 +1,15 @@
-local MDT = MDT
+local VT = VT
 
---- AddOn / WeakAura Creators can use these functions to retrieve data from MDT
+--- AddOn / WeakAura Creators can use these functions to retrieve data from VT
 
 do
   local dungeonCountCache = {}
 
-  --- Usage: local count, maxCountNormal, maxCountTeeming, teemingCount = MDT:GetEnemyForces(npcId)
+  --- Usage: local count, maxCountNormal, maxCountTeeming, teemingCount = VT:GetEnemyForces(npcId)
   --- Prefers to find the npc in the current dungeon of the player
   --- @param npcId number
   --- @return number | nil, number | nil, number | nil, number | nil
-  function MDT:GetEnemyForces(npcId)
+  function VT:GetEnemyForces(npcId)
     local zoneId = C_Map.GetBestMapForUnit("player")
     local dungeonIdx = self.zoneIdToDungeonIdx[zoneId]
 
@@ -35,7 +35,7 @@ do
       end
     end
 
-    for i, _ in pairs(MDT.dungeonList) do
+    for i, _ in pairs(VT.dungeonList) do
       if dungeonCountCache[i] and dungeonCountCache[i][npcId] then
         local cached = dungeonCountCache[i][npcId]
         return cached.count, cached.maxCountNormal, cached.maxCountTeeming, cached.teemingCount

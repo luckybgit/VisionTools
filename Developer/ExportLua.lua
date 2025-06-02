@@ -1,4 +1,4 @@
-local MDT = MDT
+local VT = VT
 local slen = string.len
 
 -- The purpose of these functions is to provide a much better way to export the dungeon data to lua format.
@@ -10,19 +10,19 @@ local slen = string.len
 -- dungeon data string representation. This will make it easier to compare dungeon data between versions.
 
 --- @param export string
-function MDT:ExportString(export)
+function VT:ExportString(export)
   if not export then return end
-  MDT:Async(function()
-    MDT:ShowInterfaceInternal(true)
-    local exportFrame = MDT.main_frame.ExportFrame
-    local editBox = MDT.main_frame.ExportFrameEditbox
+  VT:Async(function()
+    VT:ShowInterfaceInternal(true)
+    local exportFrame = VT.main_frame.ExportFrame
+    local editBox = VT.main_frame.ExportFrameEditbox
     exportFrame:ClearAllPoints()
     exportFrame:Show()
-    exportFrame:SetPoint("CENTER", MDT.main_frame, "CENTER", 0, 50)
+    exportFrame:SetPoint("CENTER", VT.main_frame, "CENTER", 0, 50)
     editBox:SetText(export)
     editBox:HighlightText(0, slen(export))
     editBox:SetFocus()
-    MDT.copyHelper:SmartShow(MDT.main_frame, 0, 50)
+    VT.copyHelper:SmartShow(VT.main_frame, 0, 50)
   end, "exportString")
 end
 
@@ -56,7 +56,7 @@ local function recursiveExport(obj, schema, indentCount)
   local actualObjectType = type(obj)
   if schema.type == "schemaArray" then
     if actualObjectType ~= "table" then
-      print("MDT recursiveExport: Error in "..schema.name..": Expected table, got "..actualObjectType.." (field: "..schema.name.."; value: "..tostring(obj)..")")
+      print("VT recursiveExport: Error in "..schema.name..": Expected table, got "..actualObjectType.." (field: "..schema.name.."; value: "..tostring(obj)..")")
       return "\"Error: Expected table, got "..actualObjectType.." (value: "..tostring(obj)..")\";\n"
     end
     res = res.."{\n"
@@ -80,7 +80,7 @@ local function recursiveExport(obj, schema, indentCount)
         if valueType == "table" then
           valueType = "array"
         end
-        print("MDT recursiveExport: Error: Non schema field "..key.." of type "..valueType.." in "..(schema.name or "unnamed schema").." (field: "..key.."; value: "..tostring(value)..")")
+        print("VT recursiveExport: Error: Non schema field "..key.." of type "..valueType.." in "..(schema.name or "unnamed schema").." (field: "..key.."; value: "..tostring(value)..")")
         res = res..getIndent(indentCount + 1).."[\""..key.."\"] = "
         res = res..recursiveExport(value, { type = valueType }, indentCount + 1)
       end
@@ -88,7 +88,7 @@ local function recursiveExport(obj, schema, indentCount)
     return res..getIndent(indentCount).."};\n"
   elseif schema.type == "array" then
     if actualObjectType ~= "table" then
-      print("MDT recursiveExport: Error: Expected table, got "..actualObjectType.." (value: "..tostring(obj)..")")
+      print("VT recursiveExport: Error: Expected table, got "..actualObjectType.." (value: "..tostring(obj)..")")
       return "\"Error: Expected table, got "..actualObjectType.." (value: "..tostring(obj)..")\";\n"
     end
     res = res.."{\n"
@@ -100,7 +100,7 @@ local function recursiveExport(obj, schema, indentCount)
     end
     return res..getIndent(indentCount).."};\n"
   elseif actualObjectType ~= schema.type then
-    print("MDT recursiveExport: Error: Expected "..schema.type..", got "..actualObjectType.." (field: "..schema.name.."; value: "..tostring(obj)..")")
+    print("VT recursiveExport: Error: Expected "..schema.type..", got "..actualObjectType.." (field: "..schema.name.."; value: "..tostring(obj)..")")
     return "\"TYPEERROR: "..
         schema.type.." expected, "..actualObjectType.." found".." (value: "..tostring(obj)..")\";\n"
   elseif schema.type == "string" then
@@ -113,9 +113,9 @@ local function recursiveExport(obj, schema, indentCount)
   end
 end
 
-function MDT:ExportLuaTable(obj, schema)
+function VT:ExportLuaTable(obj, schema)
   if not obj then
-    print("MDT: ExportLuaTable: obj is nil")
+    print("VT: ExportLuaTable: obj is nil")
     return
   end
   return (schema.name or "local table").." = "..recursiveExport(obj, schema, 0)
@@ -123,16 +123,16 @@ end
 
 --- @param target "enemies" | "pois"
 --- @param dungeonIndex number
-function MDT:TestExport(target, dungeonIndex)
-  local schema = MDT:GetSchema(target)
-  local dataToExport = (target == "enemies" and MDT.dungeonEnemies) or (target == "pois" and MDT.mapPOIs) or {}
+function VT:TestExport(target, dungeonIndex)
+  local schema = VT:GetSchema(target)
+  local dataToExport = (target == "enemies" and VT.dungeonEnemies) or (target == "pois" and VT.mapPOIs) or {}
   for i = dungeonIndex or 1, dungeonIndex or 100 do
-    local dungeonName = MDT:GetDungeonName(i)
+    local dungeonName = VT:GetDungeonName(i)
     if dungeonName and dungeonName ~= "-" then
       print(dungeonName)
-      local export = MDT:ExportLuaTable(dataToExport[i], schema)
+      local export = VT:ExportLuaTable(dataToExport[i], schema)
       if dungeonIndex and export then
-        MDT:ExportString(export)
+        VT:ExportString(export)
       end
       -- see results in chat frame, we don't need to show the data in the export frame
       -- TODO: catch and throw errors with error() and pcall() and show all error details in the export frame
@@ -152,7 +152,7 @@ do
   local startSet = false
 
   --- @param start number optional dungeonIndex to start from
-  function MDT:ExportDungeonDataIncrementally(start)
+  function VT:ExportDungeonDataIncrementally(start)
     targetIsEnemies = not targetIsEnemies
     if targetIsEnemies then
       dungeonIndex = dungeonIndex + 1
@@ -161,17 +161,17 @@ do
       dungeonIndex = start
       startSet = true
     end
-    local dungeonName = MDT:GetDungeonName(dungeonIndex)
+    local dungeonName = VT:GetDungeonName(dungeonIndex)
     if dungeonName and dungeonName ~= "-" then
-      MDT:Async(function()
-        MDT:ShowInterfaceInternal(true)
-        MDT:UpdateToDungeon(dungeonIndex)
-        MDT.main_frame.ExportFrame:Hide()
-        local obj = targetIsEnemies and MDT.dungeonEnemies[dungeonIndex] or MDT.mapPOIs[dungeonIndex]
-        local schema = MDT:GetSchema(targetIsEnemies and "enemies" or "pois")
-        local export = MDT:ExportLuaTable(obj, schema)
+      VT:Async(function()
+        VT:ShowInterfaceInternal(true)
+        VT:UpdateToDungeon(dungeonIndex)
+        VT.main_frame.ExportFrame:Hide()
+        local obj = targetIsEnemies and VT.dungeonEnemies[dungeonIndex] or VT.mapPOIs[dungeonIndex]
+        local schema = VT:GetSchema(targetIsEnemies and "enemies" or "pois")
+        local export = VT:ExportLuaTable(obj, schema)
         if export then
-          MDT:ExportString(export)
+          VT:ExportString(export)
         end
       end, "exportIncrementally")
     end

@@ -1,5 +1,5 @@
-local MDT = MDT
-local L = MDT.L
+local VT = VT
+local L = VT.L
 local sizex, sizey = 33, 420
 local AceGUI = LibStub("AceGUI-3.0")
 local db
@@ -13,15 +13,15 @@ local twipe, tinsert, tremove, tgetn, CreateFrame, tonumber, pi, max, min, atan2
     math.abs, pairs, ipairs, GetCursorPosition, GameTooltip
 
 ---sets up the toolbar frame and the widgets in it
-function MDT:initToolbar(frame)
-  db = MDT:GetDB()
+function VT:initToolbar(frame)
+  db = VT:GetDB()
 
-  frame.toolbar = CreateFrame("Frame", "MDTToolbarFrame", frame)
+  frame.toolbar = CreateFrame("Frame", "VTToolbarFrame", frame)
   frame.toolbar:SetFrameStrata("HIGH")
   frame.toolbar:SetFrameLevel(5)
   frame.toolbar.tex = frame.toolbar:CreateTexture(nil, "OVERLAY", nil, 6)
   frame.toolbar.tex:SetAllPoints()
-  frame.toolbar.tex:SetColorTexture(unpack(MDT.BackdropColor))
+  frame.toolbar.tex:SetColorTexture(unpack(VT.BackdropColor))
   frame.toolbar.toggleButton = CreateFrame("Button", nil, frame);
   frame.toolbar.toggleButton:SetFrameStrata("HIGH")
   frame.toolbar.toggleButton:SetFrameLevel(6)
@@ -33,7 +33,7 @@ function MDT:initToolbar(frame)
 
   frame.toolbar:Hide()
   frame.toolbar:SetScript("OnHide", function()
-    MDT:UpdateSelectedToolbarTool(nil)
+    VT:UpdateSelectedToolbarTool(nil)
   end)
 
   frame.toolbar.toggleButton:SetScript("OnClick", function()
@@ -63,7 +63,7 @@ function MDT:initToolbar(frame)
   frame.toolbar.widgetGroup.frame:SetBackdropColor(0, 0, 0, 0)
   frame.toolbar.widgetGroup:SetLayout("Flow")
 
-  MDT:FixAceGUIShowHide(frame.toolbar.widgetGroup, frame.toolbar)
+  VT:FixAceGUIShowHide(frame.toolbar.widgetGroup, frame.toolbar)
 
   do
     --dirty hook to make widgetgroup show/hide
@@ -84,7 +84,7 @@ function MDT:initToolbar(frame)
   ---TOOLBAR WIDGETS
   local widgetWidth = 24
   local widgets = {}
-  MDT.tempWidgets = widgets
+  VT.tempWidgets = widgets
 
   ---back
   local back = AceGUI:Create("Icon")
@@ -176,7 +176,7 @@ function MDT:initToolbar(frame)
   pencil:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0, 0.25, 0, 0.25)
   toolbarTools["pencil"] = pencil
   pencil:SetCallback("OnClick", function(widget, callbackName)
-    if currentTool == "pencil" then MDT:UpdateSelectedToolbarTool() else MDT:UpdateSelectedToolbarTool("pencil") end
+    if currentTool == "pencil" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("pencil") end
   end)
   pencil.tooltipText = L["Drawing: Freehand"]
   tinsert(widgets, pencil)
@@ -186,7 +186,7 @@ function MDT:initToolbar(frame)
   line:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0, 0.25, 0.75, 1)
   toolbarTools["line"] = line
   line:SetCallback("OnClick", function(widget, callbackName)
-    if currentTool == "line" then MDT:UpdateSelectedToolbarTool() else MDT:UpdateSelectedToolbarTool("line") end
+    if currentTool == "line" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("line") end
   end)
   line.tooltipText = L["Drawing: Line"]
   tinsert(widgets, line)
@@ -196,7 +196,7 @@ function MDT:initToolbar(frame)
   arrow:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.25, 0.5, 0, 0.25)
   toolbarTools["arrow"] = arrow
   arrow:SetCallback("OnClick", function(widget, callbackName)
-    if currentTool == "arrow" then MDT:UpdateSelectedToolbarTool() else MDT:UpdateSelectedToolbarTool("arrow") end
+    if currentTool == "arrow" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("arrow") end
   end)
   arrow.tooltipText = L["Drawing: Arrow"]
   tinsert(widgets, arrow)
@@ -206,7 +206,7 @@ function MDT:initToolbar(frame)
   note:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.75, 1, 0, 0.25)
   toolbarTools["note"] = note
   note:SetCallback("OnClick", function(widget, callbackName)
-    if currentTool == "note" then MDT:UpdateSelectedToolbarTool() else MDT:UpdateSelectedToolbarTool("note") end
+    if currentTool == "note" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("note") end
   end)
   note.tooltipText = L["Insert Note"]
   tinsert(widgets, note)
@@ -216,7 +216,7 @@ function MDT:initToolbar(frame)
   mover:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.5, 0.75, 0, 0.25)
   toolbarTools["mover"] = mover
   mover:SetCallback("OnClick", function(widget, callbackName)
-    if currentTool == "mover" then MDT:UpdateSelectedToolbarTool() else MDT:UpdateSelectedToolbarTool("mover") end
+    if currentTool == "mover" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("mover") end
   end)
   mover.tooltipText = L["Move Object"]
   tinsert(widgets, mover)
@@ -227,7 +227,7 @@ function MDT:initToolbar(frame)
   cogwheel:SetCallback("OnClick", function(widget, callbackName)
     InterfaceOptionsFrame_OpenToCategory("MythicDungeonTools")
     InterfaceOptionsFrame_OpenToCategory("MythicDungeonTools")
-    MDT:HideInterface()
+    VT:HideInterface()
   end)
   cogwheel.tooltipText = L["Settings"]
   --tinsert(widgets,cogwheel)
@@ -237,7 +237,7 @@ function MDT:initToolbar(frame)
   eraser:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.25, 0.5, 0.25, 0.5)
   toolbarTools["eraser"] = eraser
   eraser:SetCallback("OnClick", function(widget, callbackName)
-    if currentTool == "eraser" then MDT:UpdateSelectedToolbarTool() else MDT:UpdateSelectedToolbarTool("eraser") end
+    if currentTool == "eraser" then VT:UpdateSelectedToolbarTool() else VT:UpdateSelectedToolbarTool("eraser") end
   end)
   eraser.tooltipText = L["Drawing: Eraser"]
   tinsert(widgets, eraser)
@@ -260,10 +260,10 @@ function MDT:initToolbar(frame)
     if widget.type == "EditBox" then widget:SetWidth(30) end
     if widget.SetImageSize then widget:SetImageSize(20, 20) end
     widget:SetCallback("OnEnter", function(widget, callbackName)
-      MDT:ToggleToolbarTooltip(true, widget)
+      VT:ToggleToolbarTooltip(true, widget)
     end)
     widget:SetCallback("OnLeave", function()
-      MDT:ToggleToolbarTooltip(false)
+      VT:ToggleToolbarTooltip(false)
     end)
     frame.toolbar.widgetGroup:AddChild(widget)
   end
@@ -272,8 +272,8 @@ function MDT:initToolbar(frame)
   frame.toolbar:ClearAllPoints()
   frame.toolbar:SetPoint("LEFT", frame, "LEFT", 0, 0)
 
-  MDT:CreateBrushPreview(frame)
-  MDT:UpdateSelectedToolbarTool()
+  VT:CreateBrushPreview(frame)
+  VT:UpdateSelectedToolbarTool()
   frame.toolbar.widgetGroup.frame:Hide()
 end
 
@@ -284,7 +284,7 @@ local noteFramePool
 local function getTexture()
   local size = tgetn(texturePool)
   if size == 0 then
-    return MDT.main_frame.mapPanelFrame:CreateTexture(nil, "OVERLAY", nil, 0)
+    return VT.main_frame.mapPanelFrame:CreateTexture(nil, "OVERLAY", nil, 0)
   else
     local tex = texturePool[size]
     tremove(texturePool, size)
@@ -303,7 +303,7 @@ local function releaseTexture(tex)
 end
 
 ---ReleaseAllActiveTextures
-function MDT:ReleaseAllActiveTextures()
+function VT:ReleaseAllActiveTextures()
   for k, tex in pairs(activeTextures) do
     releaseTexture(tex)
   end
@@ -312,7 +312,7 @@ function MDT:ReleaseAllActiveTextures()
 end
 
 ---CreateBrushPreview
-function MDT:CreateBrushPreview(frame)
+function VT:CreateBrushPreview(frame)
   frame.brushPreview = CreateFrame("Frame", "MythicDungeonToolsBrushPreview", UIParent)
   frame.brushPreview:SetFrameStrata("HIGH")
   frame.brushPreview:SetFrameLevel(4)
@@ -323,12 +323,12 @@ function MDT:CreateBrushPreview(frame)
 end
 
 ---EnableBrushPreview
-function MDT:EnableBrushPreview(tool)
-  local frame = MDT.main_frame
+function VT:EnableBrushPreview(tool)
+  local frame = VT.main_frame
   if tool == "mover" then return end
   frame.brushPreview:Show()
   frame.brushPreview:SetScript("OnUpdate", function(self, tick)
-    if MouseIsOver(MDTScrollFrame) and not MouseIsOver(MDTToolbarFrame) then
+    if MouseIsOver(VTScrollFrame) and not MouseIsOver(VTToolbarFrame) then
       local x, y = GetCursorPosition()
       x = x / UIParent:GetScale()
       y = y / UIParent:GetScale()
@@ -351,15 +351,15 @@ function MDT:EnableBrushPreview(tool)
 end
 
 ---DisableBrushPreview
-function MDT:DisableBrushPreview()
-  local frame = MDT.main_frame
+function VT:DisableBrushPreview()
+  local frame = VT.main_frame
   frame.brushPreview:Hide()
   frame.brushPreview.tex:Hide()
   frame.brushPreview:SetScript("OnUpdate", nil)
 end
 
 ---ToggleToolbarTooltip
-function MDT:ToggleToolbarTooltip(show, widget, anchor)
+function VT:ToggleToolbarTooltip(show, widget, anchor)
   if not show then
     GameTooltip:Hide()
   else
@@ -375,18 +375,18 @@ end
 
 ---UpdateSelectedToolbarTool
 ---Called when a tool is selected/deselected
-function MDT:UpdateSelectedToolbarTool(widgetName)
-  local toolbar = MDT.main_frame.toolbar
+function VT:UpdateSelectedToolbarTool(widgetName)
+  local toolbar = VT.main_frame.toolbar
   if not widgetName or (not toolbarTools[widgetName]) then
     if toolbar.highlight then toolbar.highlight:Hide() end
-    MDT:RestoreScrollframeScripts()
-    MDT:DisableBrushPreview()
+    VT:RestoreScrollframeScripts()
+    VT:DisableBrushPreview()
     if drawingActive then
-      if currentTool == "pencil" then MDT:StopPencilDrawing() end
-      if currentTool == "arrow" then MDT:StopArrowDrawing() end
-      if currentTool == "line" then MDT:StopLineDrawing() end
-      if currentTool == "mover" then MDT:StopMovingDrawing() end
-      if currentTool == "eraser" then MDT:StopEraserDrawing() end
+      if currentTool == "pencil" then VT:StopPencilDrawing() end
+      if currentTool == "arrow" then VT:StopArrowDrawing() end
+      if currentTool == "line" then VT:StopLineDrawing() end
+      if currentTool == "mover" then VT:StopMovingDrawing() end
+      if currentTool == "eraser" then VT:StopEraserDrawing() end
     end
     currentTool = nil
     toolbar:SetScript("OnUpdate", nil)
@@ -400,26 +400,26 @@ function MDT:UpdateSelectedToolbarTool(widgetName)
   toolbar.highlight:SetSize(widget.frame:GetWidth(), widget.frame:GetWidth())
   toolbar.highlight:ClearAllPoints()
   toolbar.highlight:SetPoint("CENTER", widget.frame, "CENTER")
-  MDT:OverrideScrollframeScripts()
-  MDT:EnableBrushPreview(currentTool)
+  VT:OverrideScrollframeScripts()
+  VT:EnableBrushPreview(currentTool)
   toolbar.highlight:Show()
 end
 
 ---OverrideScrollframeScripts
 ---Take control of the map scrollframe mouse event scripts
 ---Called when the user starts drawing on the map
-function MDT:OverrideScrollframeScripts()
-  local frame = MDT.main_frame
+function VT:OverrideScrollframeScripts()
+  local frame = VT.main_frame
   frame.scrollFrame:SetScript("OnMouseDown", function(self, button)
     if button == "LeftButton" then
-      if currentTool == "pencil" then MDT:StartPencilDrawing() end
-      if currentTool == "arrow" then MDT:StartArrowDrawing() end
-      if currentTool == "line" then MDT:StartLineDrawing() end
-      if currentTool == "mover" then MDT:StartMovingObject() end
-      if currentTool == "eraser" then MDT:StartEraserDrawing() end
+      if currentTool == "pencil" then VT:StartPencilDrawing() end
+      if currentTool == "arrow" then VT:StartArrowDrawing() end
+      if currentTool == "line" then VT:StartLineDrawing() end
+      if currentTool == "mover" then VT:StartMovingObject() end
+      if currentTool == "eraser" then VT:StartEraserDrawing() end
     end
     if button == "RightButton" then
-      local scrollFrame = MDT.main_frame.scrollFrame
+      local scrollFrame = VT.main_frame.scrollFrame
       if scrollFrame.zoomedIn then
         scrollFrame.panning = true;
         scrollFrame.cursorX, scrollFrame.cursorY = GetCursorPosition()
@@ -430,22 +430,22 @@ function MDT:OverrideScrollframeScripts()
   end)
   frame.scrollFrame:SetScript("OnMouseUp", function(self, button)
     if button == "LeftButton" then
-      if currentTool == "pencil" then MDT:StopPencilDrawing() end
-      if currentTool == "arrow" then MDT:StopArrowDrawing() end
-      if currentTool == "line" then MDT:StopLineDrawing() end
-      if currentTool == "mover" then MDT:StopMovingObject() end
-      if currentTool == "eraser" then MDT:StopEraserDrawing() end
-      if currentTool == "note" then MDT:StartNoteDrawing() end
+      if currentTool == "pencil" then VT:StopPencilDrawing() end
+      if currentTool == "arrow" then VT:StopArrowDrawing() end
+      if currentTool == "line" then VT:StopLineDrawing() end
+      if currentTool == "mover" then VT:StopMovingObject() end
+      if currentTool == "eraser" then VT:StopEraserDrawing() end
+      if currentTool == "note" then VT:StartNoteDrawing() end
     end
     if button == "RightButton" then
-      local scrollFrame = MDT.main_frame.scrollFrame
+      local scrollFrame = VT.main_frame.scrollFrame
       if scrollFrame.panning then scrollFrame.panning = false end
       --only ping if we didnt pan
       if scrollFrame.oldX == scrollFrame.cursorX or scrollFrame.oldY == scrollFrame.cursorY then
-        local x, y = MDT:GetCursorPosition()
-        MDT:PingMap(x, y)
-        local sublevel = MDT:GetCurrentSubLevel()
-        if MDT.liveSessionActive then MDT:LiveSession_SendPing(x, y, sublevel) end
+        local x, y = VT:GetCursorPosition()
+        VT:PingMap(x, y)
+        local sublevel = VT:GetCurrentSubLevel()
+        if VT.liveSessionActive then VT:LiveSession_SendPing(x, y, sublevel) end
       end
     end
   end)
@@ -458,9 +458,9 @@ function MDT:OverrideScrollframeScripts()
         local xOffset, yOffset
 
         note:SetScript("OnMouseDown", function()
-          local currentPreset = MDT:GetCurrentPreset()
-          local x, y = MDT:GetCursorPosition()
-          local scale = MDT:GetScale()
+          local currentPreset = VT:GetCurrentPreset()
+          local x, y = VT:GetCursorPosition()
+          local scale = VT:GetScale()
           x = x * (1 / scale)
           y = y * (1 / scale)
           local nx = currentPreset.objects[note.objectIndex].d[1]
@@ -473,18 +473,18 @@ function MDT:OverrideScrollframeScripts()
         end)
         note:SetScript("OnDragStop", function()
           note:StopMovingOrSizing()
-          local x, y = MDT:GetCursorPosition()
-          local scale = MDT:GetScale()
+          local x, y = VT:GetCursorPosition()
+          local scale = VT:GetScale()
           x = x * (1 / scale)
           y = y * (1 / scale)
-          local currentPreset = MDT:GetCurrentPreset()
+          local currentPreset = VT:GetCurrentPreset()
           currentPreset.objects[note.objectIndex].d[1] = x - xOffset
           currentPreset.objects[note.objectIndex].d[2] = y - yOffset
-          if MDT.liveSessionActive then
-            MDT:LiveSession_SendNoteCommand("move", note.objectIndex, x - xOffset, y -
+          if VT.liveSessionActive then
+            VT:LiveSession_SendNoteCommand("move", note.objectIndex, x - xOffset, y -
               yOffset)
           end
-          MDT:DrawAllPresetObjects()
+          VT:DrawAllPresetObjects()
         end)
       end
     else
@@ -499,10 +499,10 @@ end
 ---RestoreScrollframeScripts
 ---Restore original functionality to the map scrollframe: Clicking on enemies, rightclick context menu
 ---Called when the user is done drawing on the map
-function MDT:RestoreScrollframeScripts()
-  local frame = MDT.main_frame
-  frame.scrollFrame:SetScript("OnMouseDown", MDT.OnMouseDown)
-  frame.scrollFrame:SetScript("OnMouseUp", MDT.OnMouseUp)
+function VT:RestoreScrollframeScripts()
+  local frame = VT.main_frame
+  frame.scrollFrame:SetScript("OnMouseDown", VT.OnMouseDown)
+  frame.scrollFrame:SetScript("OnMouseUp", VT.OnMouseUp)
   --make notes not draggable
   if noteFramePool then
     for _, note in pairs(noteFramePool.active) do
@@ -513,11 +513,11 @@ function MDT:RestoreScrollframeScripts()
 end
 
 ---returns cursor position relative to the map frame
-function MDT:GetCursorPosition()
-  local frame = MDT.main_frame
+function VT:GetCursorPosition()
+  local frame = VT.main_frame
   local scrollFrame = frame.scrollFrame
   local relativeFrame = UIParent --UIParent
-  local mapPanelFrame = MDT.main_frame.mapPanelFrame
+  local mapPanelFrame = VT.main_frame.mapPanelFrame
   local cursorX, cursorY = GetCursorPosition()
   local mapScale = mapPanelFrame:GetScale()
   local scrollH = scrollFrame:GetHorizontalScroll()
@@ -530,7 +530,7 @@ function MDT:GetCursorPosition()
 end
 
 ---GetHighestFrameLevelAtCursor
-function MDT:GetHighestFrameLevelAtCursor()
+function VT:GetHighestFrameLevelAtCursor()
   local currentSublevel = -8
   for k, v in pairs(activeTextures) do
     if MouseIsOver(v) and v:IsShown() and (not v.isOwn) then
@@ -544,10 +544,10 @@ end
 
 local nobj
 ---StartArrowDrawing
-function MDT:StartArrowDrawing()
+function VT:StartArrowDrawing()
   drawingActive = true
-  local frame = MDT.main_frame
-  local startx, starty = MDT:GetCursorPosition()
+  local frame = VT.main_frame
+  local startx, starty = VT:GetCursorPosition()
   local line = getTexture()
   line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
   line:SetVertexColor(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b, db.toolbar.color.a)
@@ -567,22 +567,22 @@ function MDT:StartArrowDrawing()
   ---t: triangleroation
   local arrowBrushSize = db.toolbar.brushSize + 8 --we want arrows to be thicker by default compared to lines
   nobj = {
-    d = { arrowBrushSize, 1, MDT:GetCurrentSubLevel(), true,
-      MDT:RGBToHex(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b) },
+    d = { arrowBrushSize, 1, VT:GetCurrentSubLevel(), true,
+      VT:RGBToHex(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b) },
     l = {}
   }
-  nobj.l = { MDT:Round(startx, 1), MDT:Round(starty, 1) }
+  nobj.l = { VT:Round(startx, 1), VT:Round(starty, 1) }
   nobj.t = {}
-  local scale = MDT:GetScale()
+  local scale = VT:GetScale()
   frame.toolbar:SetScript("OnUpdate", function(self, tick)
-    if not MouseIsOver(MDTScrollFrame) then return end
-    local x, y = MDT:GetCursorPosition()
-    local currentDrawLayer = MDT:GetHighestFrameLevelAtCursor()
+    if not MouseIsOver(VTScrollFrame) then return end
+    local x, y = VT:GetCursorPosition()
+    local currentDrawLayer = VT:GetHighestFrameLevelAtCursor()
     drawLayer = max(drawLayer, currentDrawLayer)
     if x ~= startx and y ~= starty then
-      DrawLine(line, MDT.main_frame.mapPanelTile1, startx, starty, x, y, (arrowBrushSize * 0.3) * scale, 1, "TOPLEFT")
-      nobj.l[3] = MDT:Round(x, 1)
-      nobj.l[4] = MDT:Round(y, 1)
+      DrawLine(line, VT.main_frame.mapPanelTile1, startx, starty, x, y, (arrowBrushSize * 0.3) * scale, 1, "TOPLEFT")
+      nobj.l[3] = VT:Round(x, 1)
+      nobj.l[4] = VT:Round(y, 1)
     end
     --position arrow head
     arrow:Show()
@@ -592,7 +592,7 @@ function MDT:StartArrowDrawing()
     local rotation = atan2(starty - y, startx - x)
     arrow:SetRotation(rotation + pi)
     arrow:ClearAllPoints()
-    arrow:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
+    arrow:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
     arrow:SetDrawLayer(objectDrawLayer, drawLayer)
     line:SetDrawLayer(objectDrawLayer, drawLayer)
 
@@ -602,9 +602,9 @@ function MDT:StartArrowDrawing()
 end
 
 ---StopArrowDrawing
-function MDT:StopArrowDrawing()
-  local frame = MDT.main_frame
-  MDT:StorePresetObject(nobj)
+function VT:StopArrowDrawing()
+  local frame = VT.main_frame
+  VT:StorePresetObject(nobj)
   if self.liveSessionActive then self:LiveSession_SendObject(nobj) end
   frame.toolbar:SetScript("OnUpdate", nil)
   for k, v in pairs(activeTextures) do
@@ -615,10 +615,10 @@ end
 
 local startx, starty, endx, endy
 ---StartLineDrawing
-function MDT:StartLineDrawing()
+function VT:StartLineDrawing()
   drawingActive = true
-  local frame = MDT.main_frame
-  startx, starty = MDT:GetCursorPosition()
+  local frame = VT.main_frame
+  startx, starty = VT:GetCursorPosition()
   local line = getTexture()
   line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
   line:SetVertexColor(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b, db.toolbar.color.a)
@@ -635,26 +635,26 @@ function MDT:StartLineDrawing()
   ---d: size,lineFactor,sublevel,shown,colorstring,drawLayer,[smooth]
   ---l: x1,y1,x2,y2,...
   nobj = {
-    d = { db.toolbar.brushSize, 1.1, MDT:GetCurrentSubLevel(), true,
-      MDT:RGBToHex(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b), nil, true },
+    d = { db.toolbar.brushSize, 1.1, VT:GetCurrentSubLevel(), true,
+      VT:RGBToHex(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b), nil, true },
     l = {}
   }
   nobj.l = {}
 
-  local scale = MDT:GetScale()
+  local scale = VT:GetScale()
   frame.toolbar:SetScript("OnUpdate", function(self, tick)
-    if not MouseIsOver(MDTScrollFrame) then return end
-    local currentDrawLayer = MDT:GetHighestFrameLevelAtCursor()
+    if not MouseIsOver(VTScrollFrame) then return end
+    local currentDrawLayer = VT:GetHighestFrameLevelAtCursor()
     drawLayer = max(drawLayer, currentDrawLayer)
-    endx, endy = MDT:GetCursorPosition()
+    endx, endy = VT:GetCursorPosition()
     if endx ~= startx and endy ~= starty then
-      DrawLine(line, MDT.main_frame.mapPanelTile1, startx, starty, endx, endy, (db.toolbar.brushSize * 0.3) * 1.1 * scale
+      DrawLine(line, VT.main_frame.mapPanelTile1, startx, starty, endx, endy, (db.toolbar.brushSize * 0.3) * 1.1 * scale
       , 1.00, "TOPLEFT")
       line:SetDrawLayer(objectDrawLayer, drawLayer)
       line:Show()
-      MDT:DrawCircle(startx, starty, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, objectDrawLayer, drawLayer,
+      VT:DrawCircle(startx, starty, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, objectDrawLayer, drawLayer,
         true, nil, circle1, true)
-      MDT:DrawCircle(endx, endy, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, objectDrawLayer, drawLayer, true
+      VT:DrawCircle(endx, endy, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, objectDrawLayer, drawLayer, true
       , nil, circle2, true)
       nobj.d[6] = drawLayer
     end
@@ -662,8 +662,8 @@ function MDT:StartLineDrawing()
 end
 
 ---StopLineDrawing
-function MDT:StopLineDrawing()
-  local frame = MDT.main_frame
+function VT:StopLineDrawing()
+  local frame = VT.main_frame
   frame.toolbar:SetScript("OnUpdate", nil)
   for k, v in pairs(activeTextures) do
     v.isOwn = nil
@@ -677,29 +677,29 @@ function MDT:StopLineDrawing()
     local t = i / numSegments
     local newx = startx + (endx - startx) * t
     local newy = starty + (endy - starty) * t
-    nobj.l[4 * i - 3] = MDT:Round(x, 1)
-    nobj.l[4 * i - 2] = MDT:Round(y, 1)
-    nobj.l[4 * i - 1] = MDT:Round(newx, 1)
-    nobj.l[4 * i] = MDT:Round(newy, 1)
+    nobj.l[4 * i - 3] = VT:Round(x, 1)
+    nobj.l[4 * i - 2] = VT:Round(y, 1)
+    nobj.l[4 * i - 1] = VT:Round(newx, 1)
+    nobj.l[4 * i] = VT:Round(newy, 1)
     x, y = newx, newy
   end
-  tinsert(nobj.l, MDT:Round(x, 1))
-  tinsert(nobj.l, MDT:Round(y, 1))
-  tinsert(nobj.l, MDT:Round(endx, 1))
-  tinsert(nobj.l, MDT:Round(endy, 1))
+  tinsert(nobj.l, VT:Round(x, 1))
+  tinsert(nobj.l, VT:Round(y, 1))
+  tinsert(nobj.l, VT:Round(endx, 1))
+  tinsert(nobj.l, VT:Round(endy, 1))
 
-  MDT:StorePresetObject(nobj)
+  VT:StorePresetObject(nobj)
   if self.liveSessionActive then self:LiveSession_SendObject(nobj) end
   drawingActive = false
-  MDT:DrawAllPresetObjects()
+  VT:DrawAllPresetObjects()
 end
 
 local oldx, oldy
 ---StartPencilDrawing
 ---Starts the pencil drawing script, fired on mouse down with pencil tool selected
-function MDT:StartPencilDrawing()
+function VT:StartPencilDrawing()
   drawingActive = true
-  local frame = MDT.main_frame
+  local frame = VT.main_frame
   oldx = nil
   oldy = nil
   local layerSublevel = -8
@@ -709,33 +709,33 @@ function MDT:StartPencilDrawing()
   ---d: size,lineFactor,sublevel,shown,colorstring,drawLayer,[smooth]
   ---l: x1,y1,x2,y2,...
   nobj = {
-    d = { db.toolbar.brushSize, 1.1, MDT:GetCurrentSubLevel(), true,
-      MDT:RGBToHex(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b), 0, true },
+    d = { db.toolbar.brushSize, 1.1, VT:GetCurrentSubLevel(), true,
+      VT:RGBToHex(db.toolbar.color.r, db.toolbar.color.g, db.toolbar.color.b), 0, true },
     l = {}
   }
   nobj.l = {}
 
   local lineIdx = 1
-  local scale = MDT:GetScale()
+  local scale = VT:GetScale()
   frame.toolbar:SetScript("OnUpdate", function(self, tick)
-    if not MouseIsOver(MDTScrollFrame) then return end
-    local currentDrawLayer = MDT:GetHighestFrameLevelAtCursor()
+    if not MouseIsOver(VTScrollFrame) then return end
+    local currentDrawLayer = VT:GetHighestFrameLevelAtCursor()
     layerSublevel = max(layerSublevel, currentDrawLayer)
-    local x, y = MDT:GetCursorPosition()
-    local mapScale = MDT.main_frame.mapPanelFrame:GetScale()
+    local x, y = VT:GetCursorPosition()
+    local mapScale = VT.main_frame.mapPanelFrame:GetScale()
     local threshold = thresholdDefault * 1 / mapScale
     if not oldx or not oldy then
       oldx, oldy = x, y
       return
     end
     if (oldx and abs(x - oldx) > threshold) or (oldy and abs(y - oldy) > threshold) then
-      MDT:DrawLine(oldx, oldy, x, y, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, true, objectDrawLayer,
+      VT:DrawLine(oldx, oldy, x, y, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, true, objectDrawLayer,
         layerSublevel, nil, true)
       nobj.d[6] = layerSublevel
-      nobj.l[lineIdx] = MDT:Round(oldx, 1)
-      nobj.l[lineIdx + 1] = MDT:Round(oldy, 1)
-      nobj.l[lineIdx + 2] = MDT:Round(x, 1)
-      nobj.l[lineIdx + 3] = MDT:Round(y, 1)
+      nobj.l[lineIdx] = VT:Round(oldx, 1)
+      nobj.l[lineIdx + 1] = VT:Round(oldy, 1)
+      nobj.l[lineIdx + 2] = VT:Round(x, 1)
+      nobj.l[lineIdx + 3] = VT:Round(y, 1)
       lineIdx = lineIdx + 4
       oldx, oldy = x, y
     end
@@ -744,24 +744,24 @@ end
 
 ---StopPencilDrawing
 ---End the pencil drawing script, fired on mouse up with the pencil tool selected
-function MDT:StopPencilDrawing()
-  local frame = MDT.main_frame
-  local x, y = MDT:GetCursorPosition()
-  local layerSublevel = MDT:GetHighestFrameLevelAtCursor()
-  local scale = MDT:GetScale()
+function VT:StopPencilDrawing()
+  local frame = VT.main_frame
+  local x, y = VT:GetCursorPosition()
+  local layerSublevel = VT:GetHighestFrameLevelAtCursor()
+  local scale = VT:GetScale()
   --finish line
   if x ~= oldx or y ~= oldy then
-    MDT:DrawLine(oldx, oldy, x, y, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, true, objectDrawLayer,
+    VT:DrawLine(oldx, oldy, x, y, (db.toolbar.brushSize * 0.3) * scale, db.toolbar.color, true, objectDrawLayer,
       layerSublevel)
     --store it
     local size = 0
     for k, v in ipairs(nobj.l) do
       size = size + 1
     end
-    nobj.l[size + 1] = MDT:Round(oldx, 1)
-    nobj.l[size + 2] = MDT:Round(oldy, 1)
-    nobj.l[size + 3] = MDT:Round(x, 1)
-    nobj.l[size + 4] = MDT:Round(y, 1)
+    nobj.l[size + 1] = VT:Round(oldx, 1)
+    nobj.l[size + 2] = VT:Round(oldy, 1)
+    nobj.l[size + 3] = VT:Round(x, 1)
+    nobj.l[size + 4] = VT:Round(y, 1)
   end
   frame.toolbar:SetScript("OnUpdate", nil)
   --clear own flags
@@ -775,8 +775,8 @@ function MDT:StopPencilDrawing()
   end
   if lineCount > 0 then
     --draw end circle, dont need to store it as we draw it when we restore the line from db
-    MDT:DrawCircle(x, y, db.toolbar.brushSize * 0.3 * scale, db.toolbar.color, objectDrawLayer, layerSublevel)
-    MDT:StorePresetObject(nobj)
+    VT:DrawCircle(x, y, db.toolbar.brushSize * 0.3 * scale, db.toolbar.color, objectDrawLayer, layerSublevel)
+    VT:StorePresetObject(nobj)
     --nobj will be scaled after StorePresetObject so no need to rescale again
     if self.liveSessionActive then self:LiveSession_SendObject(nobj) end
   end
@@ -787,17 +787,17 @@ end
 ---StartMovingObject
 local objectIndex
 local originalX, originalY
-function MDT:StartMovingObject()
+function VT:StartMovingObject()
   --we have to redraw all objects first, as the objectIndex needs to be set on every texture
-  MDT:DrawAllPresetObjects()
+  VT:DrawAllPresetObjects()
   drawingActive = true
-  local frame = MDT.main_frame
-  objectIndex = MDT:GetHighestPresetObjectIndexAtCursor()
-  local startx, starty = MDT:GetCursorPosition()
-  originalX, originalY = MDT:GetCursorPosition()
+  local frame = VT.main_frame
+  objectIndex = VT:GetHighestPresetObjectIndexAtCursor()
+  local startx, starty = VT:GetCursorPosition()
+  originalX, originalY = VT:GetCursorPosition()
   frame.toolbar:SetScript("OnUpdate", function(self, tick)
-    if not MouseIsOver(MDTScrollFrame) then return end
-    local x, y = MDT:GetCursorPosition()
+    if not MouseIsOver(VTScrollFrame) then return end
+    local x, y = VT:GetCursorPosition()
     if x ~= startx or y ~= starty then
       for j, tex in pairs(activeTextures) do
         if tex.objectIndex == objectIndex then
@@ -807,14 +807,14 @@ function MDT:StartMovingObject()
           end
         end
       end
-      startx, starty = MDT:GetCursorPosition()
+      startx, starty = VT:GetCursorPosition()
     end
   end)
 end
 
 ---HideAllPresetObjects
 ---Hide textures during rescaling
-function MDT:HideAllPresetObjects()
+function VT:HideAllPresetObjects()
   --drawings
   for _, tex in pairs(activeTextures) do
     tex:Hide()
@@ -828,12 +828,12 @@ function MDT:HideAllPresetObjects()
 end
 
 ---StopMovingDrawing
-function MDT:StopMovingObject()
-  local frame = MDT.main_frame
+function VT:StopMovingObject()
+  local frame = VT.main_frame
   frame.toolbar:SetScript("OnUpdate", nil)
   if objectIndex then
-    local newX, newY = MDT:GetCursorPosition()
-    MDT:UpdatePresetObjectOffsets(objectIndex, originalX - newX, originalY - newY)
+    local newX, newY = VT:GetCursorPosition()
+    VT:UpdatePresetObjectOffsets(objectIndex, originalX - newX, originalY - newY)
     if self.liveSessionActive then self:LiveSession_SendObjectOffsets(objectIndex, originalX - newX, originalY - newY) end
   end
   objectIndex = nil
@@ -841,7 +841,7 @@ function MDT:StopMovingObject()
 end
 
 ---GetHighestPresetObjectIndexAtCursor
-function MDT:GetHighestPresetObjectIndexAtCursor()
+function VT:GetHighestPresetObjectIndexAtCursor()
   local currentSublevel = -8
   local highestTexture
   for k, v in pairs(activeTextures) do
@@ -860,18 +860,18 @@ end
 
 ---StartEraserDrawing
 local changedObjects = {}
-function MDT:StartEraserDrawing()
-  MDT:DrawAllPresetObjects()
+function VT:StartEraserDrawing()
+  VT:DrawAllPresetObjects()
   drawingActive = true
-  local frame = MDT.main_frame
+  local frame = VT.main_frame
   local startx, starty
-  local scale = MDT:GetScale()
+  local scale = VT:GetScale()
   twipe(changedObjects)
   frame.toolbar:SetScript("OnUpdate", function(self, tick)
-    if not MouseIsOver(MDTScrollFrame) then return end
-    local x, y = MDT:GetCursorPosition()
+    if not MouseIsOver(VTScrollFrame) then return end
+    local x, y = VT:GetCursorPosition()
     if x ~= startx or y ~= starty then
-      local highestObjectIdx = MDT:GetHighestPresetObjectIndexAtCursor()
+      local highestObjectIdx = VT:GetHighestPresetObjectIndexAtCursor()
       for j, tex in pairs(activeTextures) do
         if MouseIsOver(tex) and tex:IsShown() and tex.objectIndex == highestObjectIdx then --tex.coords means this is a line
           tex:Hide()
@@ -886,7 +886,7 @@ function MDT:StartEraserDrawing()
               end
             end
             --delete saved lines
-            local currentPreset = MDT:GetCurrentPreset()
+            local currentPreset = VT:GetCurrentPreset()
             for objectIndex, obj in pairs(currentPreset.objects) do
               if objectIndex == highestObjectIdx then
                 for coordIdx, coord in pairs(obj.l) do
@@ -909,32 +909,32 @@ function MDT:StartEraserDrawing()
 end
 
 ---StopEraserDrawing
-function MDT:StopEraserDrawing()
-  local frame = MDT.main_frame
+function VT:StopEraserDrawing()
+  local frame = VT.main_frame
   frame.toolbar:SetScript("OnUpdate", nil)
   if self.liveSessionActive then self:LiveSession_SendUpdatedObjects(changedObjects) end
-  MDT:DrawAllPresetObjects()
+  VT:DrawAllPresetObjects()
   drawingActive = false
 end
 
 ---StartNoteDrawing
-function MDT:StartNoteDrawing()
+function VT:StartNoteDrawing()
   ---new object for storage
   ---x,y,sublevel,shown,text,n=true
-  local x, y = MDT:GetCursorPosition()
-  nobj = { d = { x, y, MDT:GetCurrentSubLevel(), true, "" } }
+  local x, y = VT:GetCursorPosition()
+  nobj = { d = { x, y, VT:GetCurrentSubLevel(), true, "" } }
   nobj.n = true
-  MDT:StorePresetObject(nobj)
+  VT:StorePresetObject(nobj)
   if self.liveSessionActive then self:LiveSession_SendObject(nobj) end
-  MDT:DrawAllPresetObjects()
+  VT:DrawAllPresetObjects()
 
   if not IsShiftKeyDown() then
-    MDT:UpdateSelectedToolbarTool()
+    VT:UpdateSelectedToolbarTool()
   end
 end
 
 ---DrawCircle
-function MDT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectIndex, tex, noinsert, extrax, extray)
+function VT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectIndex, tex, noinsert, extrax, extray)
   local circle = tex or getTexture()
   if not layer then layer = objectDrawLayer end
   circle:SetDrawLayer(layer, layerSublevel)
@@ -943,7 +943,7 @@ function MDT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectIn
   circle:SetWidth(1.1 * size)
   circle:SetHeight(1.1 * size)
   circle:ClearAllPoints()
-  circle:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
+  circle:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
   circle:Show()
   circle.isOwn = isOwn
   circle.objectIndex = objectIndex
@@ -954,12 +954,12 @@ function MDT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectIn
 end
 
 ---DrawLine
-function MDT:DrawLine(x, y, a, b, size, color, smooth, layer, layerSublevel, lineFactor, isOwn, objectIndex)
+function VT:DrawLine(x, y, a, b, size, color, smooth, layer, layerSublevel, lineFactor, isOwn, objectIndex)
   local line = getTexture()
   if not layer then layer = objectDrawLayer end
   line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
   line:SetVertexColor(color.r, color.g, color.b, color.a)
-  DrawLine(line, MDT.main_frame.mapPanelTile1, x, y, a, b, size, lineFactor and lineFactor or 1.1, "TOPLEFT")
+  DrawLine(line, VT.main_frame.mapPanelTile1, x, y, a, b, size, lineFactor and lineFactor or 1.1, "TOPLEFT")
   line:SetDrawLayer(layer, layerSublevel)
   line:Show()
   line.isOwn = isOwn
@@ -967,12 +967,12 @@ function MDT:DrawLine(x, y, a, b, size, color, smooth, layer, layerSublevel, lin
   line.coords = { x, y, a, b }
   tinsert(activeTextures, line)
   if smooth == true then
-    MDT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectIndex)
+    VT:DrawCircle(x, y, size, color, layer, layerSublevel, isOwn, objectIndex)
   end
 end
 
 ---DrawTriangle
-function MDT:DrawTriangle(x, y, rotation, size, color, layer, layerSublevel, isOwn, objectIndex)
+function VT:DrawTriangle(x, y, rotation, size, color, layer, layerSublevel, isOwn, objectIndex)
   local triangle = getTexture()
   if not layer then layer = objectDrawLayer end
   triangle:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\triangle")
@@ -982,7 +982,7 @@ function MDT:DrawTriangle(x, y, rotation, size, color, layer, layerSublevel, isO
   triangle:SetHeight(size)
   triangle:SetRotation(rotation + pi)
   triangle:ClearAllPoints()
-  triangle:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
+  triangle:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
   triangle:SetDrawLayer(layer, layerSublevel)
   triangle.isOwn = isOwn
   triangle.objectIndex = objectIndex
@@ -993,21 +993,21 @@ local noteEditbox
 
 --store text in nobj
 local function updateNoteObjText(text, note)
-  local currentPreset = MDT:GetCurrentPreset()
+  local currentPreset = VT:GetCurrentPreset()
   currentPreset.objects[note.objectIndex].d[5] = text
-  if MDT.liveSessionActive then MDT:LiveSession_SendNoteCommand("text", note.objectIndex, text) end
+  if VT.liveSessionActive then VT:LiveSession_SendNoteCommand("text", note.objectIndex, text) end
 end
 
 local function deleteNoteObj(note)
-  local currentPreset = MDT:GetCurrentPreset()
+  local currentPreset = VT:GetCurrentPreset()
   tremove(currentPreset.objects, note.objectIndex)
-  if MDT.liveSessionActive then MDT:LiveSession_SendNoteCommand("delete", note.objectIndex, "0") end
-  MDT:DrawAllPresetObjects()
+  if VT.liveSessionActive then VT:LiveSession_SendNoteCommand("delete", note.objectIndex, "0") end
+  VT:DrawAllPresetObjects()
 end
 
 local function makeNoteEditbox()
   local editbox = AceGUI:Create("SimpleGroup")
-  editbox.frame:SetParent(MDT.main_frame)
+  editbox.frame:SetParent(VT.main_frame)
   editbox:SetWidth(240)
   editbox:SetHeight(120)
   editbox.frame:SetFrameStrata("DIALOG")
@@ -1015,7 +1015,7 @@ local function makeNoteEditbox()
   if not editbox.frame.SetBackdrop then
     Mixin(editbox.frame, BackdropTemplateMixin)
   end
-  editbox.frame:SetBackdropColor(unpack(MDT.BackdropColor))
+  editbox.frame:SetBackdropColor(unpack(VT.BackdropColor))
   editbox:SetLayout("Flow")
   editbox.multiBox = AceGUI:Create("MultiLineEditBox")
   editbox.multiBox:SetLabel(L["Note Text:"])
@@ -1042,10 +1042,10 @@ local function makeNoteEditbox()
     ]]
   editbox.frame:Hide()
   editbox:AddChild(editbox.multiBox)
-  MDT:FixAceGUIShowHide(editbox, nil, nil, true)
+  VT:FixAceGUIShowHide(editbox, nil, nil, true)
   editbox.frame:SetScript("OnShow", function()
-    hooksecurefunc(MDT, "MouseDownHook", function() editbox.frame:Hide() end)
-    hooksecurefunc(MDT, "ZoomMap", function() editbox.frame:Hide() end)
+    hooksecurefunc(VT, "MouseDownHook", function() editbox.frame:Hide() end)
+    hooksecurefunc(VT, "ZoomMap", function() editbox.frame:Hide() end)
   end)
 
   return editbox
@@ -1054,7 +1054,7 @@ end
 local currentNote
 
 local function openContextMenu()
-  MenuUtil.CreateContextMenu(MDT.main_frame, function(ownerRegion, rootDescription)
+  MenuUtil.CreateContextMenu(VT.main_frame, function(ownerRegion, rootDescription)
     rootDescription:CreateButton(L["Edit"], function()
       currentNote:OpenEditBox()
     end)
@@ -1076,17 +1076,17 @@ local function POIButton_CalculateNumericTexCoords(index, color)
 end
 
 ---DrawNote
-function MDT:DrawNote(x, y, text, objectIndex)
+function VT:DrawNote(x, y, text, objectIndex)
   if not noteFramePool then
-    noteFramePool = MDT.CreateFramePool("Button", MDT.main_frame.mapPanelFrame, "QuestPinTemplate")
+    noteFramePool = VT.CreateFramePool("Button", VT.main_frame.mapPanelFrame, "QuestPinTemplate")
   end
-  local scale = MDT:GetScale()
+  local scale = VT:GetScale()
   --setup
   local note = noteFramePool:Acquire()
   note.noteIdx = #noteFramePool.active
   note.objectIndex = objectIndex
   note:ClearAllPoints()
-  note:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
+  note:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
   note:SetSize(12 * scale, 12 * scale)
   local idx = note.noteIdx % 25
   if idx == 0 then idx = 1 end

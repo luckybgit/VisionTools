@@ -1,4 +1,4 @@
-local _, MDT = ...
+local _, VT = ...
 local twipe, tinsert, tremove, tgetn = table.wipe, table.insert, table.remove, table.getn
 
 local NONACTIVE_ALPHA = 0.5
@@ -100,7 +100,7 @@ local texturePool = {}
 local function getTexture()
   local size = tgetn(texturePool)
   if size == 0 then
-    return MDT.main_frame.mapPanelFrame:CreateTexture(nil, "OVERLAY", nil, 0)
+    return VT.main_frame.mapPanelFrame:CreateTexture(nil, "OVERLAY", nil, 0)
   else
     local tex = texturePool[size]
     tremove(texturePool, size)
@@ -128,7 +128,7 @@ local getFSFrameByPullIdx = function(pullIdx)
   end
 end
 
-function MDT:PullClickAreaOnEnter(pullIdx)
+function VT:PullClickAreaOnEnter(pullIdx)
   local fsFrame = getFSFrameByPullIdx(pullIdx)
   if not fsFrame then return end
   fsFrame.fs:SetScale(1.25)
@@ -140,14 +140,14 @@ function MDT:PullClickAreaOnEnter(pullIdx)
   end
 end
 
-function MDT:PullClickAreaOnLeave()
+function VT:PullClickAreaOnLeave()
   for _, fsFrame in pairs(activeFontStrings) do
-    local isCurrentPull = fsFrame.pullIdx == MDT:GetCurrentPull()
+    local isCurrentPull = fsFrame.pullIdx == VT:GetCurrentPull()
     fsFrame.fs:SetScale(1)
     fsFrame.fs:SetAlpha(isCurrentPull and 1 or NONACTIVE_ALPHA)
   end
   for _, tex in pairs(activeTextures) do
-    local isCurrentPull = tex.pullIdx == MDT:GetCurrentPull()
+    local isCurrentPull = tex.pullIdx == VT:GetCurrentPull()
     if tex.isCircle then
       tex:SetAlpha(isCurrentPull and 1 or 0)
     else
@@ -159,26 +159,26 @@ end
 local function getFontString()
   local size = tgetn(fontStringPool)
   if size == 0 then
-    local fsFrame = CreateFrame("Frame", "MDTFontStringContainerFrame"..frameIndex, MDT.main_frame.mapPanelFrame)
+    local fsFrame = CreateFrame("Frame", "VTFontStringContainerFrame"..frameIndex, VT.main_frame.mapPanelFrame)
     frameIndex = frameIndex + 1
     fsFrame:SetFrameStrata("HIGH")
     fsFrame:SetFrameLevel(100)
     fsFrame:SetWidth(40)
     fsFrame:SetHeight(40)
-    local clickArea = CreateFrame("Button", "MDTFontString"..frameIndex.."ClickArea", fsFrame)
+    local clickArea = CreateFrame("Button", "VTFontString"..frameIndex.."ClickArea", fsFrame)
     clickArea:SetAllPoints(fsFrame)
     clickArea:SetFrameStrata("MEDIUM")
     clickArea:SetScript("OnClick", function(self, button, down)
       if button == "LeftButton" then
-        MDT:SetSelectionToPull(self:GetParent().pullIdx)
-        MDT:PullClickAreaOnEnter(self:GetParent().pullIdx)
+        VT:SetSelectionToPull(self:GetParent().pullIdx)
+        VT:PullClickAreaOnEnter(self:GetParent().pullIdx)
       end
     end)
     clickArea:SetScript("OnEnter", function(self)
-      MDT:PullClickAreaOnEnter(self:GetParent().pullIdx)
+      VT:PullClickAreaOnEnter(self:GetParent().pullIdx)
     end)
     clickArea:SetScript("OnLeave", function(self)
-      MDT:PullClickAreaOnLeave()
+      VT:PullClickAreaOnLeave()
     end)
     fsFrame.clickArea = clickArea
     local fs = fsFrame:CreateFontString(nil, "OVERLAY", nil)
@@ -200,7 +200,7 @@ end
 
 local previousPulls
 
-function MDT:ReleaseHullTextures(pullsToRelease)
+function VT:ReleaseHullTextures(pullsToRelease)
   for i = #activeTextures, 1, -1 do
     local tex = activeTextures[i]
     if not pullsToRelease or pullsToRelease[tex.pullIdx] then
@@ -220,7 +220,7 @@ function MDT:ReleaseHullTextures(pullsToRelease)
   if not pullsToRelease then previousPulls = nil end
 end
 
-function MDT:DrawHullFontString(hull, pullIdx)
+function VT:DrawHullFontString(hull, pullIdx)
   --2. get centroid of each pull
   local center
   if hull and hull[#hull] then
@@ -246,7 +246,7 @@ function MDT:DrawHullFontString(hull, pullIdx)
   if not center then return end
   local fsFrame = getFontString()
   fsFrame.pullIdx = pullIdx
-  if MDT:GetCurrentPull() == pullIdx then
+  if VT:GetCurrentPull() == pullIdx then
     fsFrame.fs:SetTextColor(1, 1, 1, 1)
   else
     fsFrame.fs:SetTextColor(1, 1, 1, NONACTIVE_ALPHA)
@@ -254,12 +254,12 @@ function MDT:DrawHullFontString(hull, pullIdx)
   fsFrame.fs:SetText(pullIdx)
   fsFrame:ClearAllPoints()
   fsFrame:SetSize(40, 40)
-  fsFrame:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", center[1], center[2])
+  fsFrame:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", center[1], center[2])
   fsFrame:Show()
   tinsert(activeFontStrings, fsFrame)
 end
 
-function MDT:DrawHullCircle(x, y, size, color, alpha, layer, layerSublevel, pullIdx)
+function VT:DrawHullCircle(x, y, size, color, alpha, layer, layerSublevel, pullIdx)
   local circle = getTexture()
   circle:SetDrawLayer(layer, layerSublevel)
   circle:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Circle_White")
@@ -268,30 +268,30 @@ function MDT:DrawHullCircle(x, y, size, color, alpha, layer, layerSublevel, pull
   circle:SetWidth(1.1 * size)
   circle:SetHeight(1.1 * size)
   circle:ClearAllPoints()
-  circle:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
+  circle:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x, y)
   circle:Show()
   circle.pullIdx = pullIdx
   circle.isCircle = true
   tinsert(activeTextures, circle)
 end
 
-function MDT:DrawHullLine(x, y, a, b, size, color, alpha, smooth, layer, layerSublevel, lineFactor, pullIdx)
+function VT:DrawHullLine(x, y, a, b, size, color, alpha, smooth, layer, layerSublevel, lineFactor, pullIdx)
   local line = getTexture()
   line:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
   line:SetVertexColor(color.r, color.g, color.b, alpha)
-  DrawLine(line, MDT.main_frame.mapPanelTile1, x, y, a, b, size, lineFactor and lineFactor or 1.1, "TOPLEFT")
+  DrawLine(line, VT.main_frame.mapPanelTile1, x, y, a, b, size, lineFactor and lineFactor or 1.1, "TOPLEFT")
   line:SetDrawLayer(layer, layerSublevel)
   line:Show()
   line.coords = { x, y, a, b }
   line.pullIdx = pullIdx
   tinsert(activeTextures, line)
   if smooth == true then
-    MDT:DrawHullCircle(x, y, size * 0.9, color, alpha, layer, layerSublevel, pullIdx)
+    VT:DrawHullCircle(x, y, size * 0.9, color, alpha, layer, layerSublevel, pullIdx)
   end
 end
 
-function MDT:DrawHull(vertices, pullColor, pullIdx)
-  local isCurrent = MDT:GetCurrentPull() == pullIdx
+function VT:DrawHull(vertices, pullColor, pullIdx)
+  local isCurrent = VT:GetCurrentPull() == pullIdx
   local sizeMultiplier = 0.8
   local alpha = isCurrent and 1 or NONACTIVE_ALPHA
   local hull = convex_hull(vertices)
@@ -306,7 +306,7 @@ function MDT:DrawHull(vertices, pullColor, pullIdx)
       if i ~= #hull then b = hull[i + 1] end
       --layerSublevel go from -8 to 7
       --we rotate through the layerSublevel to avoid collisions
-      MDT:DrawHullLine(a[1], a[2], b[1], b[2], sizeMultiplier * 3 * (MDT.scaleMultiplier[MDT:GetDB().currentDungeonIdx] or 1), pullColor, alpha,
+      VT:DrawHullLine(a[1], a[2], b[1], b[2], sizeMultiplier * 3 * (VT.scaleMultiplier[VT:GetDB().currentDungeonIdx] or 1), pullColor, alpha,
         true, "ARTWORK", pullIdx % 16 - 8, 1, pullIdx)
     end
   end
@@ -317,7 +317,7 @@ local function getPullVertices(p, blips)
   for enemyIdx, clones in pairs(p) do
     if tonumber(enemyIdx) then
       for _, cloneIdx in pairs(clones) do
-        if MDT:IsCloneIncluded(enemyIdx, cloneIdx) then
+        if VT:IsCloneIncluded(enemyIdx, cloneIdx) then
           for _, blip in pairs(blips) do
             if (blip.enemyIdx == enemyIdx) and (blip.cloneIdx == cloneIdx) then
               local endPoint, endRelativeTo, endRelativePoint, endX, endY = blip:GetPoint()
@@ -410,16 +410,16 @@ local function getPullsToDraw(newPulls)
   return changedPulls, removedPulls
 end
 
-function MDT:DrawAllHulls(pulls, force)
-  MDT:CancelAsync("DrawAllHulls")
-  MDT:Async(function()
+function VT:DrawAllHulls(pulls, force)
+  VT:CancelAsync("DrawAllHulls")
+  VT:Async(function()
     --get changed/removed pulls, release those textures, q them up for redraw
-    local preset = MDT:GetCurrentPreset()
+    local preset = VT:GetCurrentPreset()
     pulls = pulls or preset.value.pulls
     local pullsToDraw, removedPulls
     if force then
       pullsToDraw = pulls
-      MDT:ReleaseHullTextures()
+      VT:ReleaseHullTextures()
     else
       pullsToDraw, removedPulls = getPullsToDraw(pulls)
       local pullsToRelease = {}
@@ -429,25 +429,25 @@ function MDT:DrawAllHulls(pulls, force)
       for pullIdx, _ in pairs(removedPulls) do
         pullsToRelease[pullIdx] = true
       end
-      MDT:ReleaseHullTextures(pullsToRelease)
+      VT:ReleaseHullTextures(pullsToRelease)
     end
 
-    local blips = MDT:GetDungeonEnemyBlips()
+    local blips = VT:GetDungeonEnemyBlips()
     local vertices
     for pullIdx, p in pairs(pullsToDraw) do
-      local r, g, b = MDT:DungeonEnemies_GetPullColor(pullIdx, pullsToDraw)
+      local r, g, b = VT:DungeonEnemies_GetPullColor(pullIdx, pullsToDraw)
       vertices = getPullVertices(p, blips)
-      MDT:DrawHull(vertices, { r = r, g = g, b = b, a = 1 }, pullIdx)
-      MDT:DrawHullFontString(vertices, pullIdx)
+      VT:DrawHull(vertices, { r = r, g = g, b = b, a = 1 }, pullIdx)
+      VT:DrawHullFontString(vertices, pullIdx)
       coroutine.yield()
     end
     previousPulls = CopyTable(pulls)
   end, "DrawAllHulls", true)
 end
 
-function MDT:FindClosestPull(x, y)
-  local preset = MDT:GetCurrentPreset()
-  local blips = MDT:GetDungeonEnemyBlips()
+function VT:FindClosestPull(x, y)
+  local preset = VT:GetCurrentPreset()
+  local blips = VT:GetDungeonEnemyBlips()
   local vertices, hull, center
   local centers = {}
   --1. construct all hulls of pulls in this sublevel

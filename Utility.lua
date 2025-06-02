@@ -1,6 +1,6 @@
-local AddonName, MDT = ...
-MDT.U = {}
-local U = MDT.U
+local AddonName, VT = ...
+VT.U = {}
+local U = VT.U
 local tinsert = table.insert
 
 U.count_if = function(t, func)
@@ -80,10 +80,10 @@ end
 
 -- Performance measurement
 -- Usage:
--- MDT.U:TMStart("DungeonEnemies_UpdateEnemies")
--- MDT.U:TMStep("ReleaseAll")
--- MDT.U:TMStep("AddBlips")
--- MDT.U:TMEnd()
+-- VT.U:TMStart("DungeonEnemies_UpdateEnemies")
+-- VT.U:TMStep("ReleaseAll")
+-- VT.U:TMStep("AddBlips")
+-- VT.U:TMEnd()
 -- Open VDT to see the results, times are in elapsed milliseconds
 local debugTimes
 U.TMStart = function(self, segmentName)
@@ -103,7 +103,7 @@ U.TMEnd = function()
   for segmentIdx, data in ipairs(debugTimes) do
     if segmentIdx > 1 then
       local time = data.time - debugTimes[segmentIdx - 1].time
-      stepTimes[segmentIdx] = MDT:Round(time, 1).."ms "..data.name
+      stepTimes[segmentIdx] = VT:Round(time, 1).."ms "..data.name
       total = total + time
     end
   end

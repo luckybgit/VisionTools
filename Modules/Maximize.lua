@@ -1,20 +1,20 @@
-local MDT = MDT
+local VT = VT
 local db
 local sizex, sizey
 local canvasDrawLayer = "BORDER"
 
 --Fullscreen the AddOn Window
-function MDT:Maximize()
-  db = MDT:GetDB()
-  sizex, sizey = MDT:GetDefaultMapPanelSize()
-  local f = MDT.main_frame
+function VT:Maximize()
+  db = VT:GetDB()
+  sizex, sizey = VT:GetDefaultMapPanelSize()
+  local f = VT.main_frame
 
   local oldScrollH = f.scrollFrame:GetHorizontalScroll()
   local oldScrollV = f.scrollFrame:GetVerticalScroll()
   local oldSizeX = f.scrollFrame:GetWidth()
   local oldSizeY = f.scrollFrame:GetHeight()
   if not f.blackoutFrame then
-    f.blackoutFrame = CreateFrame("Frame", "MDTBlackoutFrame", f)
+    f.blackoutFrame = CreateFrame("Frame", "VTBlackoutFrame", f)
     f.blackoutFrame:EnableMouse(true)
     f.blackoutFrameTex = f.blackoutFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
     f.blackoutFrameTex:SetAllPoints()
@@ -26,7 +26,7 @@ function MDT:Maximize()
   f.blackoutFrame:Show()
   f.topPanel:SetMouseClickEnabled(false)
   f.bottomPanel:SetMouseClickEnabled(false)
-  local newSizex, newSizey, scale, isNarrow = MDT:GetFullScreenSizes()
+  local newSizex, newSizey, scale, isNarrow = VT:GetFullScreenSizes()
   db.scale = scale
   f:ClearAllPoints()
   if not isNarrow then
@@ -49,9 +49,9 @@ function MDT:Maximize()
   f.scrollFrame:SetHorizontalScroll(oldScrollH * (newSizex / oldSizeX))
   f.scrollFrame.cursorY = f.scrollFrame.cursorY * (newSizey / oldSizeY)
   f.scrollFrame.cursorX = f.scrollFrame.cursorX * (newSizex / oldSizeX)
-  MDT:ZoomMap(0)
-  MDT:UpdateEnemyInfoFrame()
-  MDT:UpdateMap()
+  VT:ZoomMap(0)
+  VT:UpdateEnemyInfoFrame()
+  VT:UpdateMap()
   if db.devMode then
     f.devPanel:ClearAllPoints()
     f.devPanel:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -45)
@@ -61,10 +61,10 @@ function MDT:Maximize()
 end
 
 ---Restore normal AddOn Window
-function MDT:Minimize()
-  db = MDT:GetDB()
-  sizex, sizey = MDT:GetDefaultMapPanelSize()
-  local f = MDT.main_frame
+function VT:Minimize()
+  db = VT:GetDB()
+  sizex, sizey = VT:GetDefaultMapPanelSize()
+  local f = VT.main_frame
 
   local oldScrollH = f.scrollFrame:GetHorizontalScroll()
   local oldScrollV = f.scrollFrame:GetVerticalScroll()
@@ -93,9 +93,9 @@ function MDT:Minimize()
   f.scrollFrame:SetHorizontalScroll(oldScrollH * (newSizex / oldSizeX))
   f.scrollFrame.cursorY = f.scrollFrame.cursorY * (newSizey / oldSizeY)
   f.scrollFrame.cursorX = f.scrollFrame.cursorX * (newSizex / oldSizeX)
-  MDT:ZoomMap(0)
-  MDT:UpdateEnemyInfoFrame()
-  MDT:UpdateMap()
+  VT:ZoomMap(0)
+  VT:UpdateEnemyInfoFrame()
+  VT:UpdateMap()
   if db.devMode then
     f.devPanel:ClearAllPoints()
     f.devPanel:SetPoint("TOPRIGHT", f.topPanel, "TOPLEFT", 0, 0)

@@ -29,12 +29,12 @@ Mythic Dungeon Tools is a Mythic+ Dungeon Planner AddOn which helps you perfectl
 - Ingame sharing functions to share routes with party members
 - Live mode for cooperative editing of routes including drawing, selecting enemies and more!
 
-For dungeons of previous expansions use the [MDT Legacy Plugin](https://github.com/Nnoggie/MDT_Legacy)
+For dungeons of previous expansions use the [VT Legacy Plugin](https://github.com/Nnoggie/VT_Legacy)
 
 ## Slash Commands
 
-- /mythicdungeontools
-- /mdt
+- /VisionTools
+- /VT
 
 ## Support / Social
 
@@ -48,4 +48,4 @@ For dungeons of previous expansions use the [MDT Legacy Plugin](https://github.c
 
 [![Foo](https://i.imgur.com/XvxEoEE.png)](https://discord.gg/tdxMPb3) Give Feedback in my [Discord](https://discord.gg/tdxMPb3 "Discord")
 
-[![Foo](https://i.imgur.com/qV0ZkHA.png)](https://github.com/nnoggie/MythicDungeonTools/issues/new) Open a ticket on [GitHub](https://github.com/nnoggie/MythicDungeonTools/issues/new "GitHub")
+[![Foo](https://i.imgur.com/qV0ZkHA.png)](https://github.com/nnoggie/VisionTools/issues/new) Open a ticket on [GitHub](https://github.com/nnoggie/VisionTools/issues/new "GitHub")

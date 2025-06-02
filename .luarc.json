@@ -64,7 +64,8 @@
     "MenuUtil",
         "GameTooltip_SetTitle",
         "WrapTextInColor",
-        "ICON_LIST"
+        "ICON_LIST",
+        "GetAddOnMetadata"
   ],
   "diagnostics.disable": []
 }

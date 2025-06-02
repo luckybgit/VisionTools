@@ -1,5 +1,5 @@
-local MDT = MDT
-local L = MDT.L
+local VT = VT
+local L = VT.L
 local AceGUI = LibStub("AceGUI-3.0")
 local db
 local tconcat, tinsert = table.concat, table.insert
@@ -85,9 +85,9 @@ end)
 local currentTab = "tab1"
 local function MakeEnemeyInfoFrame()
   local f = AceGUI:Create("Frame")
-  f.frame:SetParent(MDT.main_frame)
+  f.frame:SetParent(VT.main_frame)
   f.frame:SetFrameStrata("DIALOG")
-  MDT.enemyInfoFrame = f
+  VT.enemyInfoFrame = f
   f:SetTitle(L["Enemy Info"])
   f:EnableResize(false)
   f.frame:SetMovable(false)
@@ -98,10 +98,10 @@ local function MakeEnemeyInfoFrame()
 
   end)
   f.frame:ClearAllPoints()
-  f.frame:SetAllPoints(MDTScrollFrame)
+  f.frame:SetAllPoints(VTScrollFrame)
 
-  local originalHide = MDT.main_frame.Hide
-  function MDT.main_frame:Hide(...)
+  local originalHide = VT.main_frame.Hide
+  function VT.main_frame:Hide(...)
     f.frame:Hide()
     return originalHide(self, ...);
   end
@@ -136,7 +136,7 @@ local function MakeEnemeyInfoFrame()
     f.enemyDropDown = AceGUI:Create("Dropdown")
     local enemyDropDown = f.enemyDropDown
     enemyDropDown:SetCallback("OnValueChanged", function(widget, callbackName, key)
-      MDT:UpdateEnemyInfoFrame(key)
+      VT:UpdateEnemyInfoFrame(key)
     end)
 
     --model
@@ -163,7 +163,7 @@ local function MakeEnemeyInfoFrame()
     modelContainer:AddChild(modelDummyIcon)
     model:ClearAllPoints()
     model:SetPoint("BOTTOM", modelContainer.frame, "BOTTOM", 0, 10)
-    MDT:FixAceGUIShowHide(model, modelContainer.frame, true)
+    VT:FixAceGUIShowHide(model, modelContainer.frame, true)
 
     f.characteristicsContainer = AceGUI:Create("InlineGroup")
     if not f.characteristicsContainer.frame.SetBackdrop then
@@ -358,7 +358,7 @@ local function MakeEnemeyInfoFrame()
       local distribution = (UnitInRaid("player") and "RAID") or (IsInGroup() and "PARTY")
       if not distribution then return end
       local enemyName = f.enemyDropDown.text:GetText()
-      SendChatMessage(string.format(L["MDT: Spells for %s:"], enemyName), distribution)
+      SendChatMessage(string.format(L["VT: Spells for %s:"], enemyName), distribution)
       for i, child in pairs(f.spellScroll.children) do
         local link = C_Spell.GetSpellLink(child.spellId)
         SendChatMessage(i..". "..link, distribution)
@@ -502,21 +502,21 @@ local spellBlacklist = {
   --[X]  = true,
 }
 local lastEnemyIdx
-function MDT:GetEnemyInfoEnemyIdx()
+function VT:GetEnemyInfoEnemyIdx()
   return lastEnemyIdx
 end
 
-function MDT:GetEnemyInfoSpellBlacklist()
+function VT:GetEnemyInfoSpellBlacklist()
   return spellBlacklist
 end
 
-function MDT:UpdateEnemyInfoFrame(enemyIdx)
+function VT:UpdateEnemyInfoFrame(enemyIdx)
   if not enemyIdx then enemyIdx = lastEnemyIdx end
   lastEnemyIdx = enemyIdx
   if not enemyIdx then return end
-  local data = MDT.dungeonEnemies[db.currentDungeonIdx][enemyIdx]
+  local data = VT.dungeonEnemies[db.currentDungeonIdx][enemyIdx]
   if not data then return end
-  local f = MDT.EnemyInfoFrame
+  local f = VT.EnemyInfoFrame
   f:SetTitle(L[data.name])
   f.model:SetDisplayInfo(data.displayId or 39490)
   f.model:ResetModel()
@@ -547,7 +547,7 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
   f.powerScrollContainer:SetWidth(math.min(f.leftContainer.frame:GetWidth() - 20, 248))
 
   local enemies = {}
-  for mobIdx, edata in ipairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+  for mobIdx, edata in ipairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
     tinsert(enemies, mobIdx, L[edata.name])
   end
   f.enemyDropDown:SetList(enemies)
@@ -578,7 +578,7 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
     end
   end
 
-  MDT:UpdateEnemyInfoData(enemyIdx)
+  VT:UpdateEnemyInfoData(enemyIdx)
 
   --ace is finicky
   f.rightContainer:PauseLayout()
@@ -598,7 +598,7 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
     local spellIds = {}
     -- Insert all spell IDs into the table
     for spellId in pairs(data.spells) do
-      if MDT:GetDB().devMode or not spellBlacklist[spellId] then
+      if VT:GetDB().devMode or not spellBlacklist[spellId] then
         table.insert(spellIds, spellId)
       end
     end
@@ -608,7 +608,7 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
     -- Create spell buttons in sorted order
     for _, spellId in ipairs(spellIds) do
       local spellData = data.spells[spellId]
-      local spellButton = AceGUI:Create("MDTSpellButton")
+      local spellButton = AceGUI:Create("VTSpellButton")
       spellButton:SetSpell(spellId, spellData)
       spellButton:Initialize()
       spellButton:Enable()
@@ -621,7 +621,7 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
   if data.powers then
     for powerSpellId, powerData in pairs(data.powers) do
       ---@diagnostic disable-next-line: param-type-mismatch
-      local powerButton = AceGUI:Create("MDTPowerButton")
+      local powerButton = AceGUI:Create("VTPowerButton")
       powerButton:SetSpell(powerSpellId, powerData)
       powerButton:Initialize()
       powerButton:Enable()
@@ -634,11 +634,11 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
   f.rightContainer:DoLayout()
 end
 
-function MDT:UpdateEnemyInfoData(enemyIdx)
-  local f = MDT.EnemyInfoFrame
+function VT:UpdateEnemyInfoData(enemyIdx)
+  local f = VT.EnemyInfoFrame
   if not enemyIdx then enemyIdx = lastEnemyIdx end
   if not enemyIdx then return end
-  local data = MDT.dungeonEnemies[db.currentDungeonIdx][enemyIdx]
+  local data = VT.dungeonEnemies[db.currentDungeonIdx][enemyIdx]
   --data
   f.enemyDataContainer.nameEditBox:SetText(L[data.name])
   f.enemyDataContainer.nameEditBox.defaultText = data.name
@@ -646,8 +646,8 @@ function MDT:UpdateEnemyInfoData(enemyIdx)
   f.enemyDataContainer.idEditBox.defaultText = data.id
 
   local boss = data.isBoss or false
-  local health = MDT:CalculateEnemyHealth(boss, data.health, db.currentDifficulty, data.ignoreFortified)
-  local healthText = MDT:FormatEnemyHealth(health)
+  local health = VT:CalculateEnemyHealth(boss, data.health, db.currentDifficulty, data.ignoreFortified)
+  local healthText = VT:FormatEnemyHealth(health)
 
   f.enemyDataContainer.healthEditBox:SetText(healthText)
   f.enemyDataContainer.healthEditBox.defaultText = healthText
@@ -671,13 +671,13 @@ function MDT:UpdateEnemyInfoData(enemyIdx)
   f.enemyDataContainer.stealthDetectCheckBox.defaultValue = data.stealthDetect
 
   local level = db.currentDifficulty
-  local fortifiedTyrannical = MDT:IsCurrentPresetFortified() and L["Fortified"] or L["Tyrannical"]
+  local fortifiedTyrannical = VT:IsCurrentPresetFortified() and L["Fortified"] or L["Tyrannical"]
   f.enemyDataContainer.healthEditBox:SetLabel(string.format(L["Enemy Info NPC Health"], level, fortifiedTyrannical))
 end
 
-function MDT:ShowEnemyInfoFrame(blip)
-  db = MDT:GetDB()
-  MDT.EnemyInfoFrame = MDT.EnemyInfoFrame or MakeEnemeyInfoFrame()
-  MDT:UpdateEnemyInfoFrame(blip.enemyIdx)
-  MDT.EnemyInfoFrame:Show()
+function VT:ShowEnemyInfoFrame(blip)
+  db = VT:GetDB()
+  VT.EnemyInfoFrame = VT.EnemyInfoFrame or MakeEnemeyInfoFrame()
+  VT:UpdateEnemyInfoFrame(blip.enemyIdx)
+  VT.EnemyInfoFrame:Show()
 end

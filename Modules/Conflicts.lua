@@ -1,10 +1,10 @@
-local _, MDT = ...
+local _, VT = ...
 local AceGUI = LibStub("AceGUI-3.0")
 local conflictFrame
-local L = MDT.L
+local L = VT.L
 
 -- In DungeonTools case the AddOn has not been updated in over a year and has caused many users to be
--- confused about MDT not working. This will prompt users to remove the abandoned AddOn and prevent them
+-- confused about VT not working. This will prompt users to remove the abandoned AddOn and prevent them
 -- from opening up a broken instance.
 
 local candidates = {
@@ -13,24 +13,24 @@ local candidates = {
     detected = false,
     onDetect = function()
       SLASH_DUNGEONTOOLS1 = "/mplus"
-      SLASH_DUNGEONTOOLS2 = "/mdt"
+      SLASH_DUNGEONTOOLS2 = "/VT"
       SLASH_DUNGEONTOOLS3 = "/dungeontools"
       function SlashCmdList.DUNGEONTOOLS(cmd, editbox)
-        MDT:Async(function() MDT:ShowInterfaceInternal() end, "showInterface")
+        VT:Async(function() VT:ShowInterfaceInternal() end, "showInterface")
       end
 
       local ldb = LibStub("LibDBIcon-1.0")
-      ldb.objects["DungeonTools"]:SetScript("OnClick", function() MDT:Async(function() MDT:ShowInterfaceInternal() end, "showInterface") end)
+      ldb.objects["DungeonTools"]:SetScript("OnClick", function() VT:Async(function() VT:ShowInterfaceInternal() end, "showInterface") end)
     end
   },
-  ["MDTGuide"] = {
-    name = "MDTGuide",
+  ["VTGuide"] = {
+    name = "VTGuide",
     version = 123, --latest version that causes issues
     detected = false,
     onDetect = function()
 
     end,
-    note = L["MDTGuideNote"]
+    note = L["VTGuideNote"]
   },
   ["MethodDungeonTools"] = {
     name = "MethodDungeonTools",
@@ -64,7 +64,7 @@ conflictCheckFrame:SetScript("OnEvent", function(self, event, ...)
   end
 end)
 
-function MDT:CheckAddonConflicts()
+function VT:CheckAddonConflicts()
   for i = 1, C_AddOns.GetNumAddOns() do
     local name = C_AddOns.GetAddOnInfo(i)
     local loaded = C_AddOns.IsAddOnLoaded(i)
@@ -89,7 +89,7 @@ function MDT:CheckAddonConflicts()
   return false
 end
 
-function MDT:ShowConflictFrame()
+function VT:ShowConflictFrame()
   if not conflictFrame then
     conflictFrame = AceGUI:Create("Frame")
     conflictFrame:EnableResize(false)

@@ -1,5 +1,5 @@
 local AceGUI = LibStub("AceGUI-3.0")
-local MDT = MDT
+local VT = VT
 local db
 local tonumber, tinsert, pairs, ipairs = tonumber, table.insert, pairs, ipairs
 local UnitName, UnitGUID, UnitCreatureType, UnitHealthMax, UnitLevel = UnitName, UnitGUID, UnitCreatureType, UnitHealthMax, UnitLevel
@@ -7,21 +7,21 @@ local UnitName, UnitGUID, UnitCreatureType, UnitHealthMax, UnitLevel = UnitName,
 --[[
   Bind macros:
   1. Add clone
-  /run MDT:AddCloneAtCursorPosition()
+  /run VT:AddCloneAtCursorPosition()
   2. Add patrol point to clone
-  /run MDT:AddPatrolWaypointAtCursorPosition()
+  /run VT:AddPatrolWaypointAtCursorPosition()
   3. Add untargetable unit if needed
-  /run MDT:AddNPCFromUnit("mouseover")
+  /run VT:AddNPCFromUnit("mouseover")
 ]]
 
-function MDT:ToggleDevMode()
-  db = MDT:GetDB()
+function VT:ToggleDevMode()
+  db = VT:GetDB()
   db.devMode = not db.devMode
   ReloadUI()
 end
 
-function MDT:AddNPCFromUnit(unit)
-  db = MDT:GetDB()
+function VT:AddNPCFromUnit(unit)
+  db = VT:GetDB()
   local npcId
   local guid = UnitGUID(unit)
   if guid then
@@ -29,7 +29,7 @@ function MDT:AddNPCFromUnit(unit)
     npcId = tonumber(npcId)
   end
   local added
-  for _, npcData in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+  for _, npcData in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
     if npcData.id == npcId then
       added = true; break
     end
@@ -41,7 +41,7 @@ function MDT:AddNPCFromUnit(unit)
     local npcCreatureType = UnitCreatureType(unit)
     local npcScale = 1
     local npcCount = 0
-    tinsert(MDT.dungeonEnemies[db.currentDungeonIdx], {
+    tinsert(VT.dungeonEnemies[db.currentDungeonIdx], {
       name = npcName,
       health = npcHealth,
       level = npcLevel,
@@ -64,8 +64,8 @@ local currentBossEnemyIdx = 1
 local currentCloneScale
 ---CreateDevPanel
 ---Creates the dev panel which contains buttons to add npcs, objects to the map
-function MDT:CreateDevPanel(frame)
-  db = MDT:GetDB()
+function VT:CreateDevPanel(frame)
+  db = VT:GetDB()
   frame.devPanel = AceGUI:Create("TabGroup")
   local devPanel = frame.devPanel
   devPanel.frame:SetFrameStrata("HIGH")
@@ -88,7 +88,7 @@ function MDT:CreateDevPanel(frame)
   devPanel:SetLayout("Flow")
   devPanel.frame:Hide()
 
-  MDT:FixAceGUIShowHide(devPanel)
+  VT:FixAceGUIShowHide(devPanel)
 
   -- function that draws the widgets for the first tab
   local function DrawGroup1(container)
@@ -125,11 +125,11 @@ function MDT:CreateDevPanel(frame)
       [1] = {
         text = "MapLink",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local links = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local links = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 300, -200
           local t = tonumber(option1:GetText())
           local d = tonumber(option2:GetText())
@@ -145,18 +145,18 @@ function MDT:CreateDevPanel(frame)
                 template = "MapLinkPinTemplate",
                 type = "mapLink"
               })
-            MDT:POI_UpdateAll()
+            VT:POI_UpdateAll()
           end
         end,
       },
       [2] = {
         text = "Door",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local links = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local links = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 300, -200
           local doorNameText = option3:GetText()
           local doorDescriptionText = option4:GetText()
@@ -171,17 +171,17 @@ function MDT:CreateDevPanel(frame)
               doorDescription = doorDescriptionText,
               lockpick = lockpickableStatus
             })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [3] = {
         text = "Graveyard",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local links = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local links = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 300, -200
           local graveyardDescriptionText = option5:GetText()
           tinsert(links,
@@ -192,93 +192,93 @@ function MDT:CreateDevPanel(frame)
               type = "graveyard",
               graveyardDescription = graveyardDescriptionText
             })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [4] = {
         text = "General Note",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 300, -200
           local noteText = option5:GetText()
           tinsert(pois, { x = posx, y = posy, template = "MapLinkPinTemplate", type = "generalNote", text = noteText })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [5] = {
         text = "Heavy Cannon",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 300, -200
           tinsert(pois, { x = posx, y = posy, template = "MapLinkPinTemplate", type = "heavyCannon" })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [6] = {
         text = "Mechagon Bot",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local botType = tonumber(option1:GetText())
           local posx, posy = 400 + (30 * botType), -250
           tinsert(pois, { x = posx, y = posy, template = "MapLinkPinTemplate", type = "mechagonBot", botType = botType })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [7] = {
         text = "Iron Docks Iron Star",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 430, -250
           tinsert(pois,
             { x = posx, y = posy, template = "MapLinkPinTemplate", type = "ironDocksIronStar", starIndex = 1 })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [8] = {
         text = "Text Frame",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 430, -250
           local text = option5:GetText()
           tinsert(pois,
             { x = posx, y = posy, template = "MapLinkPinTemplate", type = "textFrame", text = text })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [9] = {
         text = "Zoom Icon",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 430, -250
 
-          local index = MDTMapPanelFrame:GetScale() - 2 -- this is the threshold after which the button should zoom out
-          local value1 = MDTMapPanelFrame:GetScale()
-          local value2 = MDTScrollFrame:GetHorizontalScroll() / MDT:GetScale()
-          local value3 = MDTScrollFrame:GetVerticalScroll() / MDT:GetScale()
+          local index = VTMapPanelFrame:GetScale() - 2 -- this is the threshold after which the button should zoom out
+          local value1 = VTMapPanelFrame:GetScale()
+          local value2 = VTScrollFrame:GetHorizontalScroll() / VT:GetScale()
+          local value3 = VTScrollFrame:GetVerticalScroll() / VT:GetScale()
           tinsert(pois,
             {
               x = posx,
@@ -290,49 +290,49 @@ function MDT:CreateDevPanel(frame)
               value2 = value2,
               value3 = value3
             })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [10] = {
         text = "World Marker",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local posx, posy = 430, -250
           local index = tonumber(option5:GetText())
           tinsert(pois,
             { x = posx, y = posy, template = "MapLinkPinTemplate", type = "worldMarker", index = index })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [11] = {
         text = "Brackenhide Cage",
         func = function()
-          if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-          if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-            MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+          if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+          if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+            VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
           end
-          local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+          local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
           local cageIndex = tonumber(option1:GetText())
           local posx, posy = 400, -250
           tinsert(pois, { x = posx, y = posy, template = "MapLinkPinTemplate", type = "brackenhideCage", cageIndex = cageIndex })
-          MDT:POI_UpdateAll()
+          VT:POI_UpdateAll()
         end,
       },
       [12] = {
         text = "Export Zoom Settings",
         func = function()
-          MDT:ExportCurrentZoomPanSettings()
+          VT:ExportCurrentZoomPanSettings()
         end,
       },
       [13] = {
         text = "Export to LUA",
         func = function()
-          local export = MDT:ExportLuaTable(MDT.mapPOIs[db.currentDungeonIdx], MDT:GetSchema("pois"))
-          MDT:ExportString(export)
+          local export = VT:ExportLuaTable(VT.mapPOIs[db.currentDungeonIdx], VT:GetSchema("pois"))
+          VT:ExportString(export)
         end,
       },
     }
@@ -353,7 +353,7 @@ function MDT:CreateDevPanel(frame)
 
     local function updateFields(health, level, creatureType, id, scale, count, idx)
       if idx then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][idx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][idx]
         if not data then return end
         health = data.health
         level = data.level
@@ -373,22 +373,22 @@ function MDT:CreateDevPanel(frame)
     local enemyInfoButton = AceGUI:Create("Button")
     enemyInfoButton:SetText("Open Enemy Info")
     enemyInfoButton:SetCallback("OnClick", function()
-      local devBlip = MDT:GetCurrentDevmodeBlip()
-      if devBlip then MDT:ShowEnemyInfoFrame(devBlip) else print("MDT DevMode: Please select a blip") end
+      local devBlip = VT:GetCurrentDevmodeBlip()
+      if devBlip then VT:ShowEnemyInfoFrame(devBlip) else print("VT DevMode: Please select a blip") end
     end)
     container:AddChild(enemyInfoButton)
 
     local collectedSpellsButton = AceGUI:Create("Button")
     collectedSpellsButton:SetText("Add collected spells")
     collectedSpellsButton:SetCallback("OnClick", function()
-      MDT.DataCollection:AddCollectedDataToEnemyTable(db.currentDungeonIdx, false, true)
+      VT.DataCollection:AddCollectedDataToEnemyTable(db.currentDungeonIdx, false, true)
     end)
     container:AddChild(collectedSpellsButton)
 
     local collectedCharacteristicsButton = AceGUI:Create("Button")
     collectedCharacteristicsButton:SetText("Add collected characteristics")
     collectedCharacteristicsButton:SetCallback("OnClick", function()
-      MDT.DataCollection:AddCollectedDataToEnemyTable(db.currentDungeonIdx, true, false)
+      VT.DataCollection:AddCollectedDataToEnemyTable(db.currentDungeonIdx, true, false)
     end)
     container:AddChild(collectedCharacteristicsButton)
 
@@ -396,10 +396,10 @@ function MDT:CreateDevPanel(frame)
     collectedHealthButton:SetText("Add collected Health Values")
     collectedHealthButton:SetCallback("OnClick", function()
       if db.newDataCollectionActive then
-        MDT:ProcessHealthTrack()
+        VT:ProcessHealthTrack()
       else
-        print("MDT DevMode: Cant process Health Track, reload to enable Data Collection first!")
-        MDT:ToggleDataCollection()
+        print("VT DevMode: Cant process Health Track, reload to enable Data Collection first!")
+        VT:ToggleDataCollection()
       end
     end)
     container:AddChild(collectedHealthButton)
@@ -407,7 +407,7 @@ function MDT:CreateDevPanel(frame)
     local cleanSpellDataButton = AceGUI:Create("Button")
     cleanSpellDataButton:SetText("Clean spells")
     cleanSpellDataButton:SetCallback("OnClick", function()
-      MDT:CleanEnemyInfoSpells()
+      VT:CleanEnemyInfoSpells()
     end)
     container:AddChild(cleanSpellDataButton)
 
@@ -416,7 +416,7 @@ function MDT:CreateDevPanel(frame)
     findCloneIssuesButton:SetCallback("OnClick", function()
       local cloneIssues = ""
       for i = 1, 200 do
-        local enemies = MDT.dungeonEnemies[i]
+        local enemies = VT.dungeonEnemies[i]
         if enemies then
           for _, enemy in pairs(enemies) do
             local l = #enemy.clones
@@ -425,31 +425,31 @@ function MDT:CreateDevPanel(frame)
               realLength = realLength + 1
             end
             if l ~= realLength then
-              local dungeonName = MDT.dungeonList[i]
+              local dungeonName = VT.dungeonList[i]
               local enemyName = enemy.name
               cloneIssues = cloneIssues..dungeonName..": "..enemyName.."\n"
             end
           end
         end
       end
-      MDT:ExportString(cloneIssues)
+      VT:ExportString(cloneIssues)
     end)
     container:AddChild(findCloneIssuesButton)
 
     local button3 = AceGUI:Create("Button")
     button3:SetText("Export to LUA")
     button3:SetCallback("OnClick", function()
-      MDT:CleanEnemyData(db.currentDungeonIdx)
-      local export = MDT:ExportLuaTable(MDT.dungeonEnemies[db.currentDungeonIdx], MDT:GetSchema("enemies"))
-      MDT:ExportString(export)
+      VT:CleanEnemyData(db.currentDungeonIdx)
+      local export = VT:ExportLuaTable(VT.dungeonEnemies[db.currentDungeonIdx], VT:GetSchema("enemies"))
+      VT:ExportString(export)
     end)
     container:AddChild(button3)
 
     local function updateDropdown(npcId, idx)
-      if not MDT.dungeonEnemies[db.currentDungeonIdx] then return end
+      if not VT.dungeonEnemies[db.currentDungeonIdx] then return end
       idx = idx or 1
       local enemies = {}
-      for mobIdx, data in ipairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+      for mobIdx, data in ipairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
         tinsert(enemies, mobIdx, data.name)
         if npcId then
           if data.id == npcId then idx = mobIdx end
@@ -465,11 +465,11 @@ function MDT:CreateDevPanel(frame)
     dropdown:SetCallback("OnValueChanged", function(widget, callbackName, key)
       currentEnemyIdx = key
       updateFields(nil, nil, nil, nil, nil, nil, key)
-      local dungeonEnemyBlips = MDT:GetDungeonEnemyBlips()
+      local dungeonEnemyBlips = VT:GetDungeonEnemyBlips()
       for _, v in ipairs(dungeonEnemyBlips) do
         v.devSelected = nil
       end
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
 
     container:AddChild(dropdown)
@@ -482,9 +482,9 @@ function MDT:CreateDevPanel(frame)
       local count = tonumber(value)
       local npcIdx = tonumber(dropdown:GetValue())
 
-      local data = MDT.dungeonEnemies[db.currentDungeonIdx][npcIdx]
+      local data = VT.dungeonEnemies[db.currentDungeonIdx][npcIdx]
       data["count"] = value
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
     container:AddChild(countSlider)
     local fields = {
@@ -502,9 +502,9 @@ function MDT:CreateDevPanel(frame)
           value = tonumber(text)
         end
         local npcIdx = dropdown:GetValue()
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][npcIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][npcIdx]
         data[name] = value
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end)
       container:AddChild(editBoxes[idx])
     end
@@ -515,16 +515,16 @@ function MDT:CreateDevPanel(frame)
     scaleSlider:SetValue(1)
     scaleSlider:SetCallback("OnMouseUp", function(widget, callbackName, value)
       local npcIdx = tonumber(dropdown:GetValue())
-      local data = MDT.dungeonEnemies[db.currentDungeonIdx][npcIdx]
+      local data = VT.dungeonEnemies[db.currentDungeonIdx][npcIdx]
       data["scale"] = value
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
     container:AddChild(scaleSlider)
 
     local button1 = AceGUI:Create("Button")
     button1:SetText("Create from Target")
     button1:SetCallback("OnClick", function()
-      local npcId = MDT:AddNPCFromUnit("target")
+      local npcId = VT:AddNPCFromUnit("target")
       updateDropdown(npcId)
     end)
     container:AddChild(button1)
@@ -533,12 +533,12 @@ function MDT:CreateDevPanel(frame)
     local button2 = AceGUI:Create("Button")
     button2:SetText("Make Boss")
     button2:SetCallback("OnClick", function()
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
         --encounterID
         local encounterID, encounterName, description, displayInfo, iconImage = EJ_GetCreatureInfo(1)
         if not encounterID then
-          print("MDT: Error - Make sure to open Encounter Journal and navigate to the boss you want to add!")
+          print("VT: Error - Make sure to open Encounter Journal and navigate to the boss you want to add!")
           return
         end
         for i = 1, 10000 do
@@ -548,7 +548,7 @@ function MDT:CreateDevPanel(frame)
             break
           end
         end
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.isBoss = true
         local mapID = C_Map.GetBestMapForUnit("player")
         data.instanceID = mapID and EJ_GetInstanceForMap(mapID) or 0
@@ -556,7 +556,7 @@ function MDT:CreateDevPanel(frame)
         --use this data as follows:
         --if (not EncounterJournal) then LoadAddOn('Blizzard_EncounterJournal') end
         --EncounterJournal_OpenJournal(23,data.instanceID,data.encounterID)
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(button2)
@@ -582,7 +582,7 @@ function MDT:CreateDevPanel(frame)
     blipTextHiddenCheckbox:SetLabel("Hide Blip Text")
     blipTextHiddenCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
       db.devModeBlipTextHidden = value or nil
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
     container:AddChild(blipTextHiddenCheckbox)
 
@@ -594,11 +594,11 @@ function MDT:CreateDevPanel(frame)
     cloneGroup:SetCallback("OnEnterPressed", function(widget, callbackName, text)
       local value = tonumber(text)
       if value and value > 0 then currentCloneGroup = value else currentCloneGroup = nil end
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].g = currentCloneGroup
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(cloneGroup)
@@ -607,7 +607,7 @@ function MDT:CreateDevPanel(frame)
     cloneGroupMaxButton:SetText("New Group")
     cloneGroupMaxButton:SetCallback("OnClick", function(widget, callbackName)
       local maxGroup = 0
-      for _, data in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+      for _, data in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
         for _, clone in pairs(data.clones) do
           maxGroup = (clone.g and (clone.g > maxGroup)) and clone.g or maxGroup
         end
@@ -621,11 +621,11 @@ function MDT:CreateDevPanel(frame)
     teemingCheckbox:SetLabel("Teeming")
     teemingCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
       currentTeeming = value and true or nil
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].teeming = currentTeeming
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     teemingCheckbox:SetValue(currentTeeming)
@@ -637,15 +637,15 @@ function MDT:CreateDevPanel(frame)
     patrolCheckbox:SetLabel("Patrol")
     patrolCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
       currentPatrol = value or nil
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].patrol = currentPatrol and (data.clones[currentBlip.cloneIdx].patrol or {}) or
             nil
         if not data.clones[currentBlip.cloneIdx].patrol then
           currentBlip.patrolActive = false
         end
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(patrolCheckbox)
@@ -654,10 +654,10 @@ function MDT:CreateDevPanel(frame)
     local stealthDetectCheckbox = AceGUI:Create("CheckBox")
     stealthDetectCheckbox:SetLabel("Stealth Detect")
     stealthDetectCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
-      local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+      local currentBlip = VT:GetCurrentDevmodeBlip()
+      local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
       data.stealthDetect = value or nil
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
     container:AddChild(stealthDetectCheckbox)
 
@@ -665,10 +665,10 @@ function MDT:CreateDevPanel(frame)
     local stealthCheckbox = AceGUI:Create("CheckBox")
     stealthCheckbox:SetLabel("Stealthed")
     stealthCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
-      local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+      local currentBlip = VT:GetCurrentDevmodeBlip()
+      local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
       data.stealth = value or nil
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
     container:AddChild(stealthCheckbox)
 
@@ -676,10 +676,10 @@ function MDT:CreateDevPanel(frame)
     local neutralCheckbox = AceGUI:Create("CheckBox")
     neutralCheckbox:SetLabel("Neutral")
     neutralCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
-      local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+      local currentBlip = VT:GetCurrentDevmodeBlip()
+      local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
       data.neutral = value or nil
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end)
     container:AddChild(neutralCheckbox)
 
@@ -687,11 +687,11 @@ function MDT:CreateDevPanel(frame)
     local upstairsCheckbox = AceGUI:Create("CheckBox")
     upstairsCheckbox:SetLabel("Upstairs")
     upstairsCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].upstairs = value or nil
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(upstairsCheckbox)
@@ -700,11 +700,11 @@ function MDT:CreateDevPanel(frame)
     local negativeteemingCheckbox = AceGUI:Create("CheckBox")
     negativeteemingCheckbox:SetLabel("Negative Teeming")
     negativeteemingCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].negativeTeeming = value or nil
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(negativeteemingCheckbox)
@@ -713,11 +713,11 @@ function MDT:CreateDevPanel(frame)
     inspiringCheckbox:SetLabel("Inspiring")
     inspiringCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
       currentInspiring = value and true or nil
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].inspiring = currentInspiring
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     inspiringCheckbox:SetValue(currentInspiring)
@@ -728,11 +728,11 @@ function MDT:CreateDevPanel(frame)
     faction:SetLabel("Faction:")
     faction:SetCallback("OnEnterPressed", function(widget, callbackName, text)
       local value = tonumber(text)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].faction = value
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(faction)
@@ -742,17 +742,17 @@ function MDT:CreateDevPanel(frame)
     sublevel:SetLabel("Sublevel:")
     sublevel:SetCallback("OnEnterPressed", function(widget, callbackName, text)
       local value = tonumber(text)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].sublevel = value
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(sublevel)
 
     --enter clone options into the GUI (red)
-    local currentBlip = MDT:GetCurrentDevmodeBlip()
+    local currentBlip = VT:GetCurrentDevmodeBlip()
     if currentBlip then
       cloneGroup:SetText(currentBlip.clone.g)
       currentCloneGroup = currentBlip.clone.g
@@ -784,13 +784,13 @@ function MDT:CreateDevPanel(frame)
       local infestedCheckbox = AceGUI:Create("CheckBox")
       infestedCheckbox:SetLabel("Infested Week "..i)
       infestedCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-        local currentBlip = MDT:GetCurrentDevmodeBlip()
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local currentBlip = VT:GetCurrentDevmodeBlip()
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].infested = data.clones[currentBlip.cloneIdx].infested or {}
         data.clones[currentBlip.cloneIdx].infested[i] = value or nil
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
         infestedCheckbox:SetValue(currentBlip.clone.infested and currentBlip.clone.infested[i])
       end
@@ -803,13 +803,13 @@ function MDT:CreateDevPanel(frame)
       local weekCheckbox = AceGUI:Create("CheckBox")
       weekCheckbox:SetLabel("Week "..i)
       weekCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
-        local currentBlip = MDT:GetCurrentDevmodeBlip()
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local currentBlip = VT:GetCurrentDevmodeBlip()
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].week = data.clones[currentBlip.cloneIdx].week or {}
         data.clones[currentBlip.cloneIdx].week[i] = value or nil
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
         weekCheckbox:SetValue(currentBlip.clone.week and currentBlip.clone.week[i])
       end
@@ -871,13 +871,13 @@ function MDT:CreateDevPanel(frame)
       [4] = 161244,
     }
     createSpireButton:SetCallback("OnClick", function()
-      if not MDT.mapPOIs[db.currentDungeonIdx] then MDT.mapPOIs[db.currentDungeonIdx] = {} end
-      if not MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] then
-        MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()] = {}
+      if not VT.mapPOIs[db.currentDungeonIdx] then VT.mapPOIs[db.currentDungeonIdx] = {} end
+      if not VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] then
+        VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()] = {}
       end
-      local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+      local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
       local posx, posy = 300, -200
-      local newWeek = MDT:DeepCopy(week)
+      local newWeek = VT:DeepCopy(week)
       tinsert(pois,
         {
           x = posx,
@@ -891,10 +891,10 @@ function MDT:CreateDevPanel(frame)
           npcId = tooltipIdxToNpcId[
           tooltipIndex]
         })
-      newWeek = MDT:DeepCopy(week)
-      MDT:POI_UpdateAll()
+      newWeek = VT:DeepCopy(week)
+      VT:POI_UpdateAll()
       --add associated NPC to the map
-      MDT:AddCloneFromData(tooltipIdxToNpcId[tooltipIndex], newWeek)
+      VT:AddCloneFromData(tooltipIdxToNpcId[tooltipIndex], newWeek)
     end)
     container:AddChild(createSpireButton)
   end
@@ -903,12 +903,12 @@ function MDT:CreateDevPanel(frame)
     local toggleDevModeButton = AceGUI:Create("Button")
     toggleDevModeButton:SetText("Toggle DevMode")
     toggleDevModeButton:SetCallback("OnClick", function()
-      MDT:ToggleDevMode()
+      VT:ToggleDevMode()
     end)
     container:AddChild(toggleDevModeButton)
 
     local loadOnStartUpCheckbox = AceGUI:Create("CheckBox")
-    loadOnStartUpCheckbox:SetLabel("Load MDT on Startup")
+    loadOnStartUpCheckbox:SetLabel("Load VT on Startup")
     loadOnStartUpCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
       db.loadOnStartUp = value or nil
     end)
@@ -929,7 +929,7 @@ function MDT:CreateDevPanel(frame)
     local clearCacheButton = AceGUI:Create("Button")
     clearCacheButton:SetText("Clear Cache + DC")
     clearCacheButton:SetCallback("OnClick", function()
-      MDT:ResetDataCache()
+      VT:ResetDataCache()
       db.dataCollection = {}
       db.dataCollectionCC = {}
     end)
@@ -938,8 +938,8 @@ function MDT:CreateDevPanel(frame)
     local resetDbButton = AceGUI:Create("Button")
     resetDbButton:SetText("Hard Reset DB")
     resetDbButton:SetCallback("OnClick", function()
-      MDT:OpenConfirmationFrame(300, 150, "Reset MDT DB", "Confirm", "Do you want to reset MDT DB?", function()
-        MDT:HardReset()
+      VT:OpenConfirmationFrame(300, 150, "Reset VT DB", "Confirm", "Do you want to reset VT DB?", function()
+        VT:HardReset()
       end, "Cancel", nil)
     end)
     container:AddChild(resetDbButton)
@@ -954,7 +954,7 @@ function MDT:CreateDevPanel(frame)
     local leechButton = AceGUI:Create("Button")
     leechButton:SetText("Leech Data")
     leechButton:SetCallback("OnClick", function()
-      MDT:RequestDataCollectionUpdate()
+      VT:RequestDataCollectionUpdate()
     end)
     container:AddChild(leechButton)
   end
@@ -1017,9 +1017,9 @@ function MDT:CreateDevPanel(frame)
     makeShroudedButton:SetCallback("OnClick", function()
       local value = currentShroudedTypeEditBox:GetText()
       local shroudedIndex = tonumber(value)
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip and (shroudedIndex == 1 or shroudedIndex == 2) then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx]
         local shroudedData = shroudedEnemyData[shroudedIndex]
         -- 1. create shrouded enemy if it doesnt exist in this dungeon
         local shroudedEnemyExists = false
@@ -1030,7 +1030,7 @@ function MDT:CreateDevPanel(frame)
           end
         end
         if not shroudedEnemyExists then
-          tinsert(data, MDT:DeepCopy(shroudedData))
+          tinsert(data, VT:DeepCopy(shroudedData))
         end
         -- 2. find the shrouded enemy in the data table for this dungeon
         local shroudedEnemy = nil
@@ -1041,7 +1041,7 @@ function MDT:CreateDevPanel(frame)
           end
         end
         -- 3. add the clone from this blip to the shrouded enemy, make sure to deep copy clone data
-        local clone = MDT:DeepCopy(currentBlip.clone)
+        local clone = VT:DeepCopy(currentBlip.clone)
         clone.shrouded = true
         if shroudedEnemy and shroudedEnemy.clones then
           tinsert(shroudedEnemy.clones, clone)
@@ -1050,7 +1050,7 @@ function MDT:CreateDevPanel(frame)
         -- 4. add disguised tag to original enemy
         currentBlip.clone.disguised = true
 
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(makeShroudedButton)
@@ -1059,17 +1059,17 @@ function MDT:CreateDevPanel(frame)
     inspiringCheckbox:SetLabel("Inspiring")
     inspiringCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
       currentInspiring = value and true or nil
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].inspiring = currentInspiring
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     inspiringCheckbox:SetValue(currentInspiring)
     container:AddChild(inspiringCheckbox)
 
-    local currentBlip = MDT:GetCurrentDevmodeBlip()
+    local currentBlip = VT:GetCurrentDevmodeBlip()
     if currentBlip then
       inspiringCheckbox:SetValue(currentBlip.clone.inspiring)
     end
@@ -1077,11 +1077,11 @@ function MDT:CreateDevPanel(frame)
     local unDisguiseButton = AceGUI:Create("Button")
     unDisguiseButton:SetText("Remove Disguised Tag")
     unDisguiseButton:SetCallback("OnClick", function()
-      local currentBlip = MDT:GetCurrentDevmodeBlip()
+      local currentBlip = VT:GetCurrentDevmodeBlip()
       if currentBlip then
-        local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+        local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
         data.clones[currentBlip.cloneIdx].disguised = nil
-        MDT:UpdateMap()
+        VT:UpdateMap()
       end
     end)
     container:AddChild(unDisguiseButton)
@@ -1111,8 +1111,8 @@ function MDT:CreateDevPanel(frame)
   devPanel:SelectTab("tab2")
 
   --hook UpdateMap
-  local originalFunc = MDT.UpdateMap
-  function MDT:UpdateMap(...)
+  local originalFunc = VT.UpdateMap
+  function VT:UpdateMap(...)
     originalFunc(...)
     local selectedTab
     for k, v in pairs(devPanel.tabs) do
@@ -1121,24 +1121,24 @@ function MDT:CreateDevPanel(frame)
       end
     end
     --currentEnemyIdx
-    local currentBlip = MDT:GetCurrentDevmodeBlip()
+    local currentBlip = VT:GetCurrentDevmodeBlip()
     if currentBlip then
       currentEnemyIdx = currentBlip.enemyIdx
     end
     devPanel:SelectTab(selectedTab)
     --show patrol
-    local dungeonEnemyBlips = MDT:GetDungeonEnemyBlips()
+    local dungeonEnemyBlips = VT:GetDungeonEnemyBlips()
     for _, v in ipairs(dungeonEnemyBlips) do
       v:DisplayPatrol(v.devSelected)
     end
   end
 end
 
-function MDT:AddCloneFromData(npcId, weeks)
-  local sublevel = MDT:GetCurrentSubLevel()
+function VT:AddCloneFromData(npcId, weeks)
+  local sublevel = VT:GetCurrentSubLevel()
   local x, y = 320, -200
   local data
-  for _, enemyData in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+  for _, enemyData in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
     if enemyData.id == npcId then
       data = enemyData
       break
@@ -1149,18 +1149,18 @@ function MDT:AddCloneFromData(npcId, weeks)
     return
   end
   tinsert(data.clones, { x = x, y = y, sublevel = sublevel, week = weeks })
-  print(string.format("MDT: Created clone %s %d at %d,%d", data.name, #data.clones, x, y))
-  MDT:UpdateMap()
+  print(string.format("VT: Created clone %s %d at %d,%d", data.name, #data.clones, x, y))
+  VT:UpdateMap()
 end
 
 ---AddCloneAtCursorPosition
 ---Adds a clone at the cursor position to the dungeon enemy table
 ---bound to hotkey and used to add new npcs to the map
-function MDT:AddCloneAtCursorPosition()
-  if not MouseIsOver(MDTScrollFrame) then return end
+function VT:AddCloneAtCursorPosition()
+  if not MouseIsOver(VTScrollFrame) then return end
   if currentEnemyIdx then
-    local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentEnemyIdx]
-    local cursorx, cursory = MDT:GetCursorPosition()
+    local data = VT.dungeonEnemies[db.currentDungeonIdx][currentEnemyIdx]
+    local cursorx, cursory = VT:GetCursorPosition()
     local scale = self:GetScale()
     cursorx = cursorx * (1 / scale)
     cursory = cursory * (1 / scale)
@@ -1168,32 +1168,32 @@ function MDT:AddCloneAtCursorPosition()
       {
         x = cursorx,
         y = cursory,
-        sublevel = MDT:GetCurrentSubLevel(),
+        sublevel = VT:GetCurrentSubLevel(),
         g = currentCloneGroup,
         teeming = currentTeeming,
         scale = currentCloneScale
       })
-    print(string.format("MDT: Created clone %s %d at %d,%d", data.name, #data.clones, cursorx, cursory))
-    MDT:UpdateMap()
+    print(string.format("VT: Created clone %s %d at %d,%d", data.name, #data.clones, cursorx, cursory))
+    VT:UpdateMap()
   end
 end
 
 ---AddPatrolWaypointAtCursorPosition
 ---Adds a patrol waypoint to the selected enemy
-function MDT:AddPatrolWaypointAtCursorPosition()
-  if not MouseIsOver(MDTScrollFrame) then return end
-  local currentBlip = MDT:GetCurrentDevmodeBlip()
+function VT:AddPatrolWaypointAtCursorPosition()
+  if not MouseIsOver(VTScrollFrame) then return end
+  local currentBlip = VT:GetCurrentDevmodeBlip()
   if currentBlip then
-    local data = MDT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
+    local data = VT.dungeonEnemies[db.currentDungeonIdx][currentBlip.enemyIdx]
     local cloneData = data.clones[currentBlip.cloneIdx]
     cloneData.patrol = cloneData.patrol or {}
     cloneData.patrol[1] = { x = cloneData.x, y = cloneData.y }
-    local cursorx, cursory = MDT:GetCursorPosition()
-    local scale = MDT:GetScale()
+    local cursorx, cursory = VT:GetCursorPosition()
+    local scale = VT:GetScale()
     cursorx = cursorx * (1 / scale)
     cursory = cursory * (1 / scale)
     --snap onto other waypoints
-    local patrolBlips = MDT:GetPatrolBlips()
+    local patrolBlips = VT:GetPatrolBlips()
     for idx, waypoint in pairs(patrolBlips) do
       if MouseIsOver(waypoint) then
         cursorx = waypoint.x
@@ -1206,7 +1206,7 @@ function MDT:AddPatrolWaypointAtCursorPosition()
       cursory = currentBlip.clone.y
     end
     tinsert(cloneData.patrol, { x = cursorx, y = cursory })
-    print(string.format("MDT: Created Waypoint %d of %s %d at %d,%d", 1, data.name, #cloneData.patrol, cursorx, cursory))
-    MDT:UpdateMap()
+    print(string.format("VT: Created Waypoint %d of %s %d at %d,%d", 1, data.name, #cloneData.patrol, cursorx, cursory))
+    VT:UpdateMap()
   end
 end

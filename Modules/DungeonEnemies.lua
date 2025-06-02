@@ -1,20 +1,20 @@
-local MDT = MDT
+local VT = VT
 local db
 local tonumber, tinsert, pairs, ipairs, tostring, twipe, max, tremove, DrawLine = tonumber, table.insert, pairs, ipairs,
     tostring, table.wipe, math.max, table.remove, DrawLine
-local L = MDT.L
+local L = VT.L
 local blips = {}
 local preset
 local selectedGreen = { 34 / 255, 139 / 255, 34 / 255, 0.7 }
 local patrolColor = { 0, 0.5, 1, 0.8 }
 local corruptedColor = { 1, 0, 1, 0.8 }
 
-function MDT:GetDungeonEnemyBlips()
+function VT:GetDungeonEnemyBlips()
   return blips
 end
 
 --From http://wow.gamepedia.com/UI_coordinates
-function MDT:DoFramesOverlap(frameA, frameB, offset)
+function VT:DoFramesOverlap(frameA, frameB, offset)
   if not frameA or not frameB then return end
   offset = offset or 0
   --frameA = frameA.texture_Background
@@ -42,7 +42,7 @@ function MDT:DoFramesOverlap(frameA, frameB, offset)
       and ((frameBBottom * sB) < (frameATop * sA));
 end
 
-MDTDungeonEnemyMixin = {};
+VTDungeonEnemyMixin = {};
 
 local defaultSizes = {
   ["texture_Background"] = 20,
@@ -61,13 +61,13 @@ local defaultSizes = {
   ["texture_OverlayIcon"] = 12,
 }
 
-function MDTDungeonEnemyMixin:updateSizes(scale)
+function VTDungeonEnemyMixin:updateSizes(scale)
   for tex, size in pairs(defaultSizes) do
     self[tex]:SetSize(size * self.normalScale * scale, size * self.normalScale * scale)
   end
 end
 
-function MDT:DisplayBlipModifierLabels(modifier)
+function VT:DisplayBlipModifierLabels(modifier)
   for _, blip in pairs(blips) do
     blip.textLocked = true
     local text = (modifier == "alt" and blip.clone.g and "G"..blip.clone.g) or (modifier == "ctrl" and blip.data.count) or ""
@@ -76,7 +76,7 @@ function MDT:DisplayBlipModifierLabels(modifier)
   end
 end
 
-function MDT:HideAllBlipLabels()
+function VT:HideAllBlipLabels()
   for _, blip in pairs(blips) do
     if not blip.textLocked then return end
     blip.fontstring_Text1:Hide()
@@ -84,8 +84,8 @@ function MDT:HideAllBlipLabels()
   end
 end
 
-function MDT:SetUpModifiers(frame)
-  if MDT:GetDB().devMode then return end
+function VT:SetUpModifiers(frame)
+  if VT:GetDB().devMode then return end
   local ONUPDATE_INTERVAL = 0.1
   local timeSinceLastUpdate = 0
   frame:SetScript("OnUpdate", function(self, elapsed)
@@ -93,57 +93,57 @@ function MDT:SetUpModifiers(frame)
     if timeSinceLastUpdate >= ONUPDATE_INTERVAL then
       timeSinceLastUpdate = 0
       local modifier = (IsAltKeyDown() and "alt") or (IsControlKeyDown() and "ctrl")
-      local overMDT = MouseIsOver(frame) or MouseIsOver(frame.sidePanel) or MouseIsOver(frame.topPanel) or MouseIsOver(frame.bottomPanel)
-      if modifier and overMDT then
-        MDT:DisplayBlipModifierLabels(modifier)
+      local overVT = MouseIsOver(frame) or MouseIsOver(frame.sidePanel) or MouseIsOver(frame.topPanel) or MouseIsOver(frame.bottomPanel)
+      if modifier and overVT then
+        VT:DisplayBlipModifierLabels(modifier)
         local statusText = (modifier == "alt" and L["altKeyDownStatusText"]) or (modifier == "ctrl" and L["ctrlKeyDownStatusText"])
-        MDT.main_frame.statusString:SetText(statusText)
-        MDT.main_frame.statusString:Show()
+        VT.main_frame.statusString:SetText(statusText)
+        VT.main_frame.statusString:Show()
       else
-        MDT:HideAllBlipLabels()
-        MDT.main_frame.statusString:Hide()
+        VT:HideAllBlipLabels()
+        VT.main_frame.statusString:Hide()
       end
     end
   end)
 end
 
-function MDTDungeonEnemyMixin:OnEnter()
+function VTDungeonEnemyMixin:OnEnter()
   self:updateSizes(1.2)
   self:SetFrameLevel(self:GetFrameLevel() + 5)
   self:DisplayPatrol(true)
-  MDT:DisplayBlipTooltip(self, true)
+  VT:DisplayBlipTooltip(self, true)
   if self.data.corrupted then
     --self.texture_DragDown:Show()
     --self.texture_DragLeft:Show()
     --self.texture_DragRight:Show()
     --self.texture_DragUp:Show()
     if not self.selected then
-      local active = MDT.GetFramePool("VignettePinTemplate").active
+      local active = VT.GetFramePool("VignettePinTemplate").active
       for _, poiFrame in pairs(active) do
         if poiFrame.spireIndex and poiFrame.npcId == self.data.id then
           poiFrame.HighlightTexture:Show()
           self.spireFrame = poiFrame
-          self.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, self.spireFrame, self, nil, nil, nil,
+          self.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, self.spireFrame, self, nil, nil, nil,
             nil, nil, self.selected, self.animatedLine)
           self.spireFrame.animatedLine = self.animatedLine
           break
         end
       end
-      local connectedDoor = MDT:FindConnectedDoor(self.data.id)
+      local connectedDoor = VT:FindConnectedDoor(self.data.id)
       if connectedDoor then
-        self.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, connectedDoor, self, nil, nil, nil, nil,
+        self.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, connectedDoor, self, nil, nil, nil, nil,
           nil, self.selected, self.animatedLine)
       end
     end
   end
   if not db.devMode then
     if self.textLocked then return end
-    self.fontstring_Text1:SetText(MDT:IsCurrentPresetTeeming() and self.data.teemingCount or self.data.count)
+    self.fontstring_Text1:SetText(VT:IsCurrentPresetTeeming() and self.data.teemingCount or self.data.count)
     self.fontstring_Text1:Show()
     if self.clone.g then
       for _, blip in pairs(blips) do
         if blip.clone.g == self.clone.g then
-          blip.fontstring_Text1:SetText(MDT:IsCurrentPresetTeeming() and blip.data.teemingCount or blip.data.count)
+          blip.fontstring_Text1:SetText(VT:IsCurrentPresetTeeming() and blip.data.teemingCount or blip.data.count)
           blip.fontstring_Text1:Show()
         end
       end
@@ -151,7 +151,7 @@ function MDTDungeonEnemyMixin:OnEnter()
   end
 end
 
-function MDTDungeonEnemyMixin:OnLeave()
+function VTDungeonEnemyMixin:OnLeave()
   self:updateSizes(1)
   self:SetFrameLevel(self:GetFrameLevel() - 5)
   if db.devMode then
@@ -159,13 +159,13 @@ function MDTDungeonEnemyMixin:OnLeave()
   else
     self:DisplayPatrol(false)
   end
-  MDT:DisplayBlipTooltip(self, false)
+  VT:DisplayBlipTooltip(self, false)
   if self.data.corrupted then
     self.texture_DragDown:Hide()
     self.texture_DragLeft:Hide()
     self.texture_DragRight:Hide()
     self.texture_DragUp:Hide()
-    local active = MDT.GetFramePool("VignettePinTemplate").active
+    local active = VT.GetFramePool("VignettePinTemplate").active
     for _, poiFrame in pairs(active) do
       if poiFrame.spireIndex and poiFrame.npcId == self.data.id then
         poiFrame.HighlightTexture:Hide()
@@ -173,7 +173,7 @@ function MDTDungeonEnemyMixin:OnLeave()
       end
     end
     if not self.selected then
-      MDT:HideAnimatedLine(self.animatedLine)
+      VT:HideAnimatedLine(self.animatedLine)
     end
   end
   if not db.devMode then
@@ -196,28 +196,28 @@ local function setUpMouseHandlers(self)
   local targetPull
   self:SetScript("OnDragStart", function()
     local x, y, scale
-    preset = MDT:GetCurrentPreset()
-    tempPulls = MDT:DeepCopy(preset.value.pulls)
+    preset = VT:GetCurrentPreset()
+    tempPulls = VT:DeepCopy(preset.value.pulls)
     targetPull = nil
     local _, _, _, blipX, blipY = self:GetPoint()
     self:SetScript("OnUpdate", function()
-      local nx, ny = MDT:GetCursorPosition()
+      local nx, ny = VT:GetCursorPosition()
       if x ~= nx or y ~= ny then
         x, y = nx, ny
         --find closest pull and measure distance
-        local pullIdx, centerX, centerY = MDT:FindClosestPull(x, y)
+        local pullIdx, centerX, centerY = VT:FindClosestPull(x, y)
         if not centerX then return end
         local distBlip = (centerX - blipX) ^ 2 + (centerY - blipY) ^ 2
         local distCursor = (centerX - x) ^ 2 + (centerY - y) ^ 2
         local isClose = distCursor < 1 / 3 * distBlip or distBlip < 150
         if not isClose then
           targetPull = nil
-          MDT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(self, false, IsControlKeyDown(), tempPulls, nil, true)
-          MDT:DungeonEnemies_UpdateSelected(MDT:GetCurrentPull(), tempPulls)
+          VT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(self, false, IsControlKeyDown(), tempPulls, nil, true)
+          VT:DungeonEnemies_UpdateSelected(VT:GetCurrentPull(), tempPulls)
         elseif pullIdx ~= targetPull then
           targetPull = pullIdx
-          MDT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(self, true, IsControlKeyDown(), tempPulls, pullIdx, true)
-          MDT:DungeonEnemies_UpdateSelected(MDT:GetCurrentPull(), tempPulls)
+          VT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(self, true, IsControlKeyDown(), tempPulls, pullIdx, true)
+          VT:DungeonEnemies_UpdateSelected(VT:GetCurrentPull(), tempPulls)
         end
       end
     end)
@@ -225,12 +225,12 @@ local function setUpMouseHandlers(self)
   self:SetScript("OnDragStop", function()
     self:SetScript("OnUpdate", nil)
     preset.value.pulls = tempPulls
-    MDT:DungeonEnemies_UpdateSelected(MDT:GetCurrentPull(), tempPulls)
-    MDT:SetSelectionToPull(targetPull)
-    MDT:ReloadPullButtons()
-    MDT:UpdateProgressbar()
-    if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
-      MDT:LiveSession_SendPulls(MDT:GetPulls())
+    VT:DungeonEnemies_UpdateSelected(VT:GetCurrentPull(), tempPulls)
+    VT:SetSelectionToPull(targetPull)
+    VT:ReloadPullButtons()
+    VT:UpdateProgressbar()
+    if VT.liveSessionActive and VT:GetCurrentPreset().uid == VT.livePresetUID then
+      VT:LiveSession_SendPulls(VT:GetPulls())
     end
   end)
 end
@@ -240,9 +240,9 @@ local function setUpMouseHandlersAwakened(self, clone, scale, riftOffsets)
   local oldX, oldY
   self:SetScript("OnMouseDown", function(self, button)
     if button == "LeftButton" then
-      riftOffsets = MDT:GetRiftOffsets()
-      local x, y = MDT:GetCursorPosition()
-      local scale = MDT:GetScale()
+      riftOffsets = VT:GetRiftOffsets()
+      local x, y = VT:GetCursorPosition()
+      local scale = VT:GetScale()
       x = x * (1 / scale)
       y = y * (1 / scale)
       oldX = riftOffsets and riftOffsets[self.data.id] and riftOffsets[self.data.id].x or clone.x
@@ -253,53 +253,53 @@ local function setUpMouseHandlersAwakened(self, clone, scale, riftOffsets)
   end)
   self:SetScript("OnDragStart", function()
     self:StartMoving()
-    MDT.draggedBlip = self
-    local activeDoors = MDT.GetFramePool("MapLinkPinTemplate").active
-    riftOffsets = MDT:GetRiftOffsets()
+    VT.draggedBlip = self
+    local activeDoors = VT.GetFramePool("MapLinkPinTemplate").active
+    riftOffsets = VT:GetRiftOffsets()
     self:SetScript("OnUpdate", function()
       for _, poiFrame in pairs(activeDoors) do
-        if MDT:DoFramesOverlap(self, poiFrame, -10) then
+        if VT:DoFramesOverlap(self, poiFrame, -10) then
           poiFrame.HighlightTexture:Show()
         else
           poiFrame.HighlightTexture:Hide()
         end
       end
       --reposition animated line
-      local x, y = MDT:GetCursorPosition()
-      local scale = MDT:GetScale()
+      local x, y = VT:GetCursorPosition()
+      local scale = VT:GetScale()
       x = x * (1 / scale)
       y = y * (1 / scale)
       x = x - xOffset
       y = y - yOffset
       if x ~= self.adjustedX or y ~= self.adjustedY then
-        local sizex, sizey = MDT:GetDefaultMapPanelSize()
+        local sizex, sizey = VT:GetDefaultMapPanelSize()
         x = x <= 0 and 0 or x >= sizex and sizex or x
         y = y >= 0 and 0 or y <= (-1) * sizey and (-1) * sizey or y
         self.adjustedX = x
         self.adjustedY = y
-        local connectedDoor = MDT:FindConnectedDoor(self.data.id)
-        self.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, connectedDoor or self.spireFrame, self,
+        local connectedDoor = VT:FindConnectedDoor(self.data.id)
+        self.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, connectedDoor or self.spireFrame, self,
           nil, nil, nil, nil, nil, self.selected, self.animatedLine)
         riftOffsets[self.data.id] = riftOffsets[self.data.id] or {}
         riftOffsets[self.data.id].x = x
         riftOffsets[self.data.id].y = y
         self:ClearAllPoints()
-        self:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x * scale, y * scale)
+        self:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x * scale, y * scale)
       end
     end)
   end)
   self:SetScript("OnDragStop", function()
-    MDT.draggedBlip = nil
-    riftOffsets = MDT:GetRiftOffsets()
+    VT.draggedBlip = nil
+    riftOffsets = VT:GetRiftOffsets()
     self:StopMovingOrSizing()
     self:SetScript("OnUpdate", nil)
     self:ClearAllPoints()
-    self:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", self.adjustedX * scale, self.adjustedY * scale)
+    self:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", self.adjustedX * scale, self.adjustedY * scale)
     --dragged ontop of door
     --find doors,check overlap,break,swap sublevel,change poi sublevel
-    local active = MDT.GetFramePool("MapLinkPinTemplate").active
+    local active = VT.GetFramePool("MapLinkPinTemplate").active
     for _, poiFrame in pairs(active) do
-      if MDT:DoFramesOverlap(self, poiFrame, -10) then
+      if VT:DoFramesOverlap(self, poiFrame, -10) then
         riftOffsets[self.data.id].sublevel = poiFrame.target
         riftOffsets[self.data.id].homeSublevel = self.clone.sublevel or 1
         riftOffsets[self.data.id].connections = riftOffsets[self.data.id].connections or {}
@@ -316,7 +316,7 @@ local function setUpMouseHandlersAwakened(self, clone, scale, riftOffsets)
           tinsert(c,
             {
               connectionIndex = poiFrame.poi.connectionIndex,
-              source = MDT:GetCurrentSubLevel() + 0,
+              source = VT:GetCurrentSubLevel() + 0,
               target = poiFrame.poi.target
             })
         end
@@ -330,8 +330,8 @@ local function setUpMouseHandlersAwakened(self, clone, scale, riftOffsets)
         break
       end
     end
-    if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
-      MDT:LiveSession_SendCorruptedPositions(preset.value.riftOffsets)
+    if VT.liveSessionActive and VT:GetCurrentPreset().uid == VT.livePresetUID then
+      VT:LiveSession_SendCorruptedPositions(preset.value.riftOffsets)
     end
   end)
 end
@@ -348,9 +348,9 @@ local iconColors = {
 }
 
 local createEnemyContextMenu = function(frame)
-  MDT:GetCurrentPreset().value.enemyAssignments = MDT:GetCurrentPreset().value.enemyAssignments or {}
-  local assignments = MDT:GetCurrentPreset().value.enemyAssignments
-  MenuUtil.CreateContextMenu(MDT.main_frame, function(ownerRegion, rootDescription)
+  VT:GetCurrentPreset().value.enemyAssignments = VT:GetCurrentPreset().value.enemyAssignments or {}
+  local assignments = VT:GetCurrentPreset().value.enemyAssignments
+  MenuUtil.CreateContextMenu(VT.main_frame, function(ownerRegion, rootDescription)
     rootDescription:CreateTitle(L[frame.data.name])
 
     local function IsSelected(data)
@@ -362,7 +362,7 @@ local createEnemyContextMenu = function(frame)
       assignments[data.enemyIdx][data.cloneIdx] = data.index ~= 0 and data.index or nil
       frame:SetUp(frame.data, frame.clone)
       if not db.hasSeenAssignmentWarning then
-        MDT:OpenConfirmationFrame(450, 150, L["Warning"], L["Okay"], L["assignmentWarning"])
+        VT:OpenConfirmationFrame(450, 150, L["Warning"], L["Okay"], L["assignmentWarning"])
         db.hasSeenAssignmentWarning = true
       end
     end
@@ -376,36 +376,36 @@ local createEnemyContextMenu = function(frame)
     submenu:CreateRadio(L["None"], IsSelected, SetSelected, { enemyIdx = frame.enemyIdx, cloneIdx = frame.cloneIdx, index = 0 })
     submenu:CreateButton(L["Clear all Markers"], function()
       twipe(assignments)
-      MDT:Async(function()
-        MDT:DungeonEnemies_UpdateEnemiesAsync()
+      VT:Async(function()
+        VT:DungeonEnemies_UpdateEnemiesAsync()
       end, "ClearAllMarkers")
     end)
     rootDescription:CreateButton(L["Open Enemy Info"], function()
-      MDT:ShowEnemyInfoFrame(frame)
+      VT:ShowEnemyInfoFrame(frame)
     end)
   end)
 end
 
-function MDTDungeonEnemyMixin:OnClick(button, down)
+function VTDungeonEnemyMixin:OnClick(button, down)
   --always deselect toolbar tool
-  MDT:UpdateSelectedToolbarTool()
+  VT:UpdateSelectedToolbarTool()
   if button == "LeftButton" then
     if IsShiftKeyDown() and not self.selected then
-      local newPullIdx = MDT:GetCurrentPull() + 1
-      MDT:PresetsAddPull(newPullIdx)
-      MDT:GetCurrentPreset().value.selection = { newPullIdx }
-      MDT:SetSelectionToPull(newPullIdx)
+      local newPullIdx = VT:GetCurrentPull() + 1
+      VT:PresetsAddPull(newPullIdx)
+      VT:GetCurrentPreset().value.selection = { newPullIdx }
+      VT:SetSelectionToPull(newPullIdx)
     end
-    MDT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(self, not self.selected, IsControlKeyDown())
-    MDT:DungeonEnemies_UpdateSelected(MDT:GetCurrentPull())
-    MDT:UpdateProgressbar()
-    MDT:ReloadPullButtons()
-    if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
-      MDT:LiveSession_SendPulls(MDT:GetPulls())
+    VT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(self, not self.selected, IsControlKeyDown())
+    VT:DungeonEnemies_UpdateSelected(VT:GetCurrentPull())
+    VT:UpdateProgressbar()
+    VT:ReloadPullButtons()
+    if VT.liveSessionActive and VT:GetCurrentPreset().uid == VT.livePresetUID then
+      VT:LiveSession_SendPulls(VT:GetPulls())
     end
     if self.data.corrupted then
       local connectedFrame
-      local active = MDT.GetFramePool("VignettePinTemplate").active
+      local active = VT.GetFramePool("VignettePinTemplate").active
       for _, poiFrame in pairs(active) do
         if poiFrame.spireIndex and poiFrame.npcId and poiFrame.npcId == self.data.id then
           if self.selected then
@@ -429,19 +429,19 @@ function MDTDungeonEnemyMixin:OnClick(button, down)
           break
         end
       end
-      local connectedDoor = MDT:FindConnectedDoor(self.data.id)
+      local connectedDoor = VT:FindConnectedDoor(self.data.id)
       connectedFrame = connectedDoor or connectedFrame
-      self.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, connectedFrame, self, nil, nil, nil, nil,
+      self.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, connectedFrame, self, nil, nil, nil, nil,
         nil, self.selected, self.animatedLine)
       connectedFrame.animatedLine = self.animatedLine
-      if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
-        MDT:LiveSession_SendCorruptedPositions(preset.value.riftOffsets)
+      if VT.liveSessionActive and VT:GetCurrentPreset().uid == VT.livePresetUID then
+        VT:LiveSession_SendCorruptedPositions(preset.value.riftOffsets)
       end
     end
   elseif button == "RightButton" then
     if db.devMode then
       if IsAltKeyDown() then
-        MDT.dungeonEnemies[db.currentDungeonIdx][self.enemyIdx].clones[self.cloneIdx] = nil
+        VT.dungeonEnemies[db.currentDungeonIdx][self.enemyIdx].clones[self.cloneIdx] = nil
         self:Hide()
       else
         self.devSelected = (not self.devSelected) or nil
@@ -457,7 +457,7 @@ function MDTDungeonEnemyMixin:OnClick(button, down)
           end
         end
       end
-      MDT:UpdateMap()
+      VT:UpdateMap()
     else
       createEnemyContextMenu(self)
     end
@@ -467,12 +467,12 @@ end
 local patrolPoints = {}
 local patrolLines = {}
 
-function MDT:GetPatrolBlips()
+function VT:GetPatrolBlips()
   return patrolPoints
 end
 
-function MDTDungeonEnemyMixin:DisplayPatrol(shown)
-  local scale = MDT:GetScale()
+function VTDungeonEnemyMixin:DisplayPatrol(shown)
+  local scale = VT:GetScale()
 
   --Hide all points/line
   for _, point in pairs(patrolPoints) do point:Hide() end
@@ -484,7 +484,7 @@ function MDTDungeonEnemyMixin:DisplayPatrol(shown)
     local oldWaypointBlip
     for patrolIdx, waypoint in ipairs(self.clone.patrol) do
       patrolPoints[patrolIdx] = patrolPoints[patrolIdx] or
-          MDT.main_frame.mapPanelFrame:CreateTexture("MDTDungeonPatrolPoint"..patrolIdx, "BACKGROUND", nil, 0)
+          VT.main_frame.mapPanelFrame:CreateTexture("VTDungeonPatrolPoint"..patrolIdx, "BACKGROUND", nil, 0)
 
 
       patrolPoints[patrolIdx]:SetDrawLayer("OVERLAY", 2)
@@ -492,14 +492,14 @@ function MDTDungeonEnemyMixin:DisplayPatrol(shown)
       patrolPoints[patrolIdx]:SetSize(4 * scale, 4 * scale)
       patrolPoints[patrolIdx]:SetVertexColor(0, 0.2, 0.5, 0.6)
       patrolPoints[patrolIdx]:ClearAllPoints()
-      patrolPoints[patrolIdx]:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", waypoint.x * scale,
+      patrolPoints[patrolIdx]:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", waypoint.x * scale,
         waypoint.y * scale)
       patrolPoints[patrolIdx].x = waypoint.x
       patrolPoints[patrolIdx].y = waypoint.y
       patrolPoints[patrolIdx]:Show()
 
       patrolLines[patrolIdx] = patrolLines[patrolIdx] or
-          MDT.main_frame.mapPanelFrame:CreateTexture("MDTDungeonPatrolLine"..patrolIdx, "BACKGROUND", nil, 0)
+          VT.main_frame.mapPanelFrame:CreateTexture("VTDungeonPatrolLine"..patrolIdx, "BACKGROUND", nil, 0)
       patrolLines[patrolIdx]:SetDrawLayer("OVERLAY", 1)
       patrolLines[patrolIdx]:SetTexture("Interface\\AddOns\\MythicDungeonTools\\Textures\\Square_White")
       patrolLines[patrolIdx]:SetVertexColor(0, 0.2, 0.5, 0.6)
@@ -509,7 +509,7 @@ function MDTDungeonEnemyMixin:DisplayPatrol(shown)
       if oldWaypointBlip then
         local _, _, _, startX, startY = patrolPoints[patrolIdx]:GetPoint()
         local _, _, _, endX, endY = oldWaypointBlip:GetPoint()
-        DrawLine(patrolLines[patrolIdx], MDT.main_frame.mapPanelTile1, startX, startY, endX, endY, 1 * scale, 1,
+        DrawLine(patrolLines[patrolIdx], VT.main_frame.mapPanelTile1, startX, startY, endX, endY, 1 * scale, 1,
           "TOPLEFT")
         patrolLines[patrolIdx]:Show()
       else
@@ -521,7 +521,7 @@ function MDTDungeonEnemyMixin:DisplayPatrol(shown)
     if firstWaypointBlip and oldWaypointBlip then
       local _, _, _, startX, startY = firstWaypointBlip:GetPoint()
       local _, _, _, endX, endY = oldWaypointBlip:GetPoint()
-      DrawLine(patrolLines[1], MDT.main_frame.mapPanelTile1, startX, startY, endX, endY, 1 * scale, 1, "TOPLEFT")
+      DrawLine(patrolLines[1], VT.main_frame.mapPanelTile1, startX, startY, endX, endY, 1 * scale, 1, "TOPLEFT")
       patrolLines[1]:Show()
     end
   else
@@ -539,17 +539,17 @@ end
 local encryptedIds = { [185685] = true, [185683] = true, [185680] = true }
 
 local ranOnce
-function MDT:DisplayBlipTooltip(blip, shown)
+function VT:DisplayBlipTooltip(blip, shown)
   if not ranOnce then
-    MDT.tooltip:ClearAllPoints()
-    MDT.tooltip:SetPoint("TOPLEFT", UIParent, "BOTTOMRIGHT")
-    MDT.tooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT")
-    MDT.tooltip:Show()
-    MDT.tooltip:Hide()
+    VT.tooltip:ClearAllPoints()
+    VT.tooltip:SetPoint("TOPLEFT", UIParent, "BOTTOMRIGHT")
+    VT.tooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT")
+    VT.tooltip:Show()
+    VT.tooltip:Hide()
     ranOnce = true
   end
 
-  local tooltip = MDT.tooltip
+  local tooltip = VT.tooltip
   local data = blip.data
   if shown then
     --- for some creatures (e.g. encrypted relics) it shows no model; prefer displayId then
@@ -572,7 +572,7 @@ function MDT:DisplayBlipTooltip(blip, shown)
   end
 
   local boss = blip.data.isBoss or false
-  local health = MDT:CalculateEnemyHealth(boss, data.health, db.currentDifficulty, data.ignoreFortified)
+  local health = VT:CalculateEnemyHealth(boss, data.health, db.currentDifficulty, data.ignoreFortified)
   local group = blip.clone.g and " "..string.format(L["(G %d)"], blip.clone.g) or ""
   --local upstairs = blip.clone.upstairs and CreateTextureMarkup("Interface\\MINIMAP\\MiniMap-PositionArrows", 16, 32, 16, 16, 0, 1, 0, 0.5,0,-50) or ""
   --[[
@@ -585,18 +585,18 @@ function MDT:DisplayBlipTooltip(blip, shown)
 
   --remove encrypted clones ids
   if encryptedIds[blip.data.id] then occurence = "" end
-  if not L[data.name] then print("MDT: Could not find localization for "..data.name) end
+  if not L[data.name] then print("VT: Could not find localization for "..data.name) end
   local text = L[data.name]..
       " "..
       occurence..
       group..
       "\n"..
       string.format(L["Level %d %s"], data.level, L[data.creatureType]).." "..data.id..
-      "\n"..string.format(L["%s HP"], MDT:FormatEnemyHealth(health)).."\n"
+      "\n"..string.format(L["%s HP"], VT:FormatEnemyHealth(health)).."\n"
 
-  local count = MDT:IsCurrentPresetTeeming() and data.teemingCount or data.count
-  text = text..L["Forces"]..": "..MDT:FormatEnemyForces(count)
-  text = text.."\n"..L["Efficiency Score"]..": "..MDT:GetEfficiencyScoreString(count, data.health)
+  local count = VT:IsCurrentPresetTeeming() and data.teemingCount or data.count
+  text = text..L["Forces"]..": "..VT:FormatEnemyForces(count)
+  text = text.."\n"..L["Efficiency Score"]..": "..VT:GetEfficiencyScoreString(count, data.health)
   local reapingText
   if reapingText then text = text.."\n"..reapingText end
   text = text.."\n\n["..L["Right click for more info"].."]"
@@ -613,7 +613,7 @@ function MDT:DisplayBlipTooltip(blip, shown)
     bonusIcon:SetPoint("TOPLEFT", tooltip.Model, "BOTTOMLEFT", 8, -8);
     tooltip.bonusIcon = bonusIcon
 
-    local bonusString = tooltip.bonusString or tooltip:CreateFontString("MDTToolTipString")
+    local bonusString = tooltip.bonusString or tooltip:CreateFontString("VTToolTipString")
     bonusString:SetFontObject("GameFontNormalSmall")
     bonusString:SetFont(tooltip.String:GetFont(), 10, "")
     bonusString:SetTextColor(1, 1, 1, 1)
@@ -636,8 +636,8 @@ function MDT:DisplayBlipTooltip(blip, shown)
 
   tooltip:ClearAllPoints()
   if db.tooltipInCorner then
-    tooltip:SetPoint("BOTTOMRIGHT", MDT.main_frame, "BOTTOMRIGHT", 0, 0)
-    tooltip:SetPoint("TOPLEFT", MDT.main_frame, "BOTTOMRIGHT", -tooltip.mySizes.x, tooltip.mySizes.y)
+    tooltip:SetPoint("BOTTOMRIGHT", VT.main_frame, "BOTTOMRIGHT", 0, 0)
+    tooltip:SetPoint("TOPLEFT", VT.main_frame, "BOTTOMRIGHT", -tooltip.mySizes.x, tooltip.mySizes.y)
   else
     --check for bottom clipping
     tooltip:ClearAllPoints()
@@ -646,13 +646,13 @@ function MDT:DisplayBlipTooltip(blip, shown)
     local bottomOffset = 0
     local rightOffset = 0
     local tooltipBottom = tooltip:GetBottom()
-    local mainFrameBottom = MDT.main_frame:GetBottom()
+    local mainFrameBottom = VT.main_frame:GetBottom()
     if tooltipBottom < mainFrameBottom then
       bottomOffset = tooltip.mySizes.y
     end
     --right side clipping
     local tooltipRight = tooltip:GetRight()
-    local mainFrameRight = MDT.main_frame:GetRight()
+    local mainFrameRight = VT.main_frame:GetRight()
     if tooltipRight > mainFrameRight then
       rightOffset = -(tooltip.mySizes.x + 60)
     end
@@ -663,17 +663,17 @@ function MDT:DisplayBlipTooltip(blip, shown)
   end
 end
 
-function MDT:GetEfficiencyScoreString(count, health)
-  local totalCount = MDT.dungeonTotalCount[db.currentDungeonIdx].normal
+function VT:GetEfficiencyScoreString(count, health)
+  local totalCount = VT.dungeonTotalCount[db.currentDungeonIdx].normal
   local score = 2.5 * (count / totalCount) * 13000 / (health / 1000000)
-  local formattedScore = MDT:Round(score, 1)
+  local formattedScore = VT:Round(score, 1)
   local value = score / 10
   --https://stackoverflow.com/a/7947812/17380548
-  local colorHex = MDT:RGBToHex(math.max(0, math.min(1, 2 * (1 - value))), math.min(1, 2 * value), 0)
+  local colorHex = VT:RGBToHex(math.max(0, math.min(1, 2 * (1 - value))), math.min(1, 2 * value), 0)
   return ("|cFF%s%s|r"):format(colorHex, formattedScore)
 end
 
-function MDT:GetCurrentDevmodeBlip()
+function VT:GetCurrentDevmodeBlip()
   for blipIdx, blip in pairs(blips) do
     if blip.devSelected then
       return blip
@@ -707,12 +707,12 @@ local function blipDevModeSetup(blip)
 
   local xOffset, yOffset
   blip:SetScript("OnMouseDown", function()
-    local x, y = MDT:GetCursorPosition()
-    local scale = MDT:GetScale()
+    local x, y = VT:GetCursorPosition()
+    local scale = VT:GetScale()
     x = x * (1 / scale)
     y = y * (1 / scale)
-    local nx = MDT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].x
-    local ny = MDT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].y
+    local nx = VT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].x
+    local ny = VT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].y
     xOffset = x - nx
     yOffset = y - ny
   end)
@@ -729,25 +729,25 @@ local function blipDevModeSetup(blip)
     if IsShiftKeyDown() then
       moveGroup = true
     end
-    local x, y = MDT:GetCursorPosition()
-    local scale = MDT:GetScale()
+    local x, y = VT:GetCursorPosition()
+    local scale = VT:GetScale()
     x = x * (1 / scale)
     y = y * (1 / scale)
     x = x - xOffset
     y = y - yOffset
-    local deltaX = x - MDT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].x
-    local deltaY = y - MDT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].y
+    local deltaX = x - VT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].x
+    local deltaY = y - VT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].y
     if moveGroup then
-      for enemyIdx, data in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+      for enemyIdx, data in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
         for cloneIdx, clone in pairs(data.clones) do
           if clone.g == blip.clone.g then
             clone.x = clone.x + deltaX
             clone.y = clone.y + deltaY
             --move blip
-            local cloneBlip = MDT:GetBlip(enemyIdx, cloneIdx)
+            local cloneBlip = VT:GetBlip(enemyIdx, cloneIdx)
             if cloneBlip then
               cloneBlip:ClearAllPoints()
-              cloneBlip:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", clone.x * scale, clone.y * scale)
+              cloneBlip:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", clone.x * scale, clone.y * scale)
             end
           end
         end
@@ -755,9 +755,9 @@ local function blipDevModeSetup(blip)
     end
     blip:StopMovingOrSizing()
     blip:ClearAllPoints()
-    blip:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", x * scale, y * scale)
-    MDT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].x = x
-    MDT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].y = y
+    blip:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", x * scale, y * scale)
+    VT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].x = x
+    VT.dungeonEnemies[db.currentDungeonIdx][blip.enemyIdx].clones[blip.cloneIdx].y = y
     moveGroup = nil
   end)
   blip:SetScript("OnMouseWheel", function(self, delta)
@@ -766,21 +766,21 @@ local function blipDevModeSetup(blip)
     if IsAltKeyDown() then
       if IsShiftKeyDown() then
         -- scale whole sublevel
-        for _, data in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+        for _, data in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
           for _, clone in pairs(data.clones) do
-            if clone.sublevel == MDT:GetCurrentSubLevel() then
+            if clone.sublevel == VT:GetCurrentSubLevel() then
               clone.scale = (clone.scale or 1) + delta * 0.1
             end
           end
         end
       elseif IsControlKeyDown() then
         -- only scale this specific blip
-        local clone = MDT.dungeonEnemies[db.currentDungeonIdx][self.enemyIdx].clones[self.cloneIdx]
+        local clone = VT.dungeonEnemies[db.currentDungeonIdx][self.enemyIdx].clones[self.cloneIdx]
         clone.scale = (clone.scale or 1) + delta * 0.1
       else
         -- only scale this blip and it's connected blips
         if blip.clone.g then
-          for _, data in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+          for _, data in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
             for _, clone in pairs(data.clones) do
               if clone.g == blip.clone.g then
                 clone.scale = (clone.scale or 1) + delta * 0.1
@@ -791,11 +791,11 @@ local function blipDevModeSetup(blip)
           blip.clone.scale = (blip.clone.scale or 1) + delta * 0.1
         end
       end
-      MDT:UpdateMap()
+      VT:UpdateMap()
     else
       if not blip.clone.g then
         local maxGroup = 0
-        for _, data in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+        for _, data in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
           for _, clone in pairs(data.clones) do
             maxGroup = (clone.g and (clone.g > maxGroup)) and clone.g or maxGroup
           end
@@ -808,11 +808,11 @@ local function blipDevModeSetup(blip)
         local blipGroup = blip.clone.g
         if IsShiftKeyDown() then
           --change group of all connected blips
-          for enemyIdx, data in pairs(MDT.dungeonEnemies[db.currentDungeonIdx]) do
+          for enemyIdx, data in pairs(VT.dungeonEnemies[db.currentDungeonIdx]) do
             for cloneIdx, clone in pairs(data.clones) do
               if clone.g == blipGroup then
                 clone.g = blipGroup + delta
-                local cloneBlip = MDT:GetBlip(enemyIdx, cloneIdx)
+                local cloneBlip = VT:GetBlip(enemyIdx, cloneIdx)
                 cloneBlip.UpdateBlipText()
               end
             end
@@ -830,13 +830,13 @@ end
 local emissaryIds = { [155432] = true, [155433] = true, [155434] = true }
 local tormentedIds = { [179891] = true, [179892] = true, [179890] = true, [179446] = true }
 
-function MDTDungeonEnemyMixin:SetUp(data, clone)
-  local scale = MDT:GetScale()
+function VTDungeonEnemyMixin:SetUp(data, clone)
+  local scale = VT:GetScale()
   self:ClearAllPoints()
-  self:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", clone.x * scale, clone.y * scale)
+  self:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", clone.x * scale, clone.y * scale)
   local cloneScale = clone.scale or 1
   self.normalScale = cloneScale * data.scale * (data.isBoss and 1.7 or 1) *
-      (MDT.scaleMultiplier[db.currentDungeonIdx] or 1) * scale
+      (VT.scaleMultiplier[db.currentDungeonIdx] or 1) * scale
   self.normalScale = self.normalScale * 0.6
   self:SetSize(self.normalScale * 13, self.normalScale * 13)
   self:updateSizes(1)
@@ -845,7 +845,7 @@ function MDTDungeonEnemyMixin:SetUp(data, clone)
   if not data.corrupted then
     for k, v in pairs(blips) do
       --only check neighboring blips - saves performance on big maps
-      if ((clone.x - v.clone.x) ^ 2 + (clone.y - v.clone.y) ^ 2 < 81) and MDT:DoFramesOverlap(self, v, 5) then
+      if ((clone.x - v.clone.x) ^ 2 + (clone.y - v.clone.y) ^ 2 < 81) and VT:DoFramesOverlap(self, v, 5) then
         raise = max(raise
         , v:GetFrameLevel() + 1)
       end
@@ -872,11 +872,11 @@ function MDTDungeonEnemyMixin:SetUp(data, clone)
     self.texture_DragLeft:SetRotation(-1.5708)
     self.texture_DragRight:SetRotation(1.5708)
     self.texture_DragUp:SetRotation(3.14159)
-    local riftOffsets = MDT:GetRiftOffsets()
+    local riftOffsets = VT:GetRiftOffsets()
     self.adjustedX = riftOffsets and riftOffsets[self.data.id] and riftOffsets[self.data.id].x or clone.x
     self.adjustedY = riftOffsets and riftOffsets[self.data.id] and riftOffsets[self.data.id].y or clone.y
     self:ClearAllPoints()
-    self:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", self.adjustedX * scale, self.adjustedY * scale)
+    self:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", self.adjustedX * scale, self.adjustedY * scale)
     self:SetMovable(true)
     self.animatedLine = nil
     setUpMouseHandlersAwakened(self, clone, scale, riftOffsets)
@@ -902,7 +902,7 @@ function MDTDungeonEnemyMixin:SetUp(data, clone)
   end
   self.texture_Indicator:Hide()
   self.shrouded_Indicator:Hide()
-  local assignments = MDT:GetCurrentPreset().value.enemyAssignments
+  local assignments = VT:GetCurrentPreset().value.enemyAssignments
   local assignment = assignments and assignments[self.enemyIdx] and assignments[self.enemyIdx][self.cloneIdx]
   if assignment then
     self.texture_OverlayIcon:Show()
@@ -918,7 +918,7 @@ function MDTDungeonEnemyMixin:SetUp(data, clone)
 end
 
 ---DungeonEnemies_IsAnyBlipMoving
-function MDT:DungeonEnemies_IsAnyBlipMoving()
+function VT:DungeonEnemies_IsAnyBlipMoving()
   local isAnyMoving
   for blipIdx, blip in pairs(blips) do
     if blip:IsDragging() then
@@ -931,21 +931,21 @@ end
 
 ---DungeonEnemies_HideAllBlips
 ---Used to hide blips during scaling changes to the map
-function MDT:DungeonEnemies_HideAllBlips()
-  MDT.dungeonEnemies_framePool:ReleaseAll()
+function VT:DungeonEnemies_HideAllBlips()
+  VT.dungeonEnemies_framePool:ReleaseAll()
 end
 
-function MDT:DungeonEnemies_UpdateEnemiesAsync()
-  MDT.dungeonEnemies_framePool:ReleaseAll()
+function VT:DungeonEnemies_UpdateEnemiesAsync()
+  VT.dungeonEnemies_framePool:ReleaseAll()
   coroutine.yield()
   twipe(blips)
-  if not db then db = MDT:GetDB() end
-  local enemies = MDT.dungeonEnemies[db.currentDungeonIdx]
+  if not db then db = VT:GetDB() end
+  local enemies = VT.dungeonEnemies[db.currentDungeonIdx]
   if not enemies then return end
-  preset = MDT:GetCurrentPreset()
+  preset = VT:GetCurrentPreset()
 
-  local riftOffsets = MDT:GetRiftOffsets()
-  local currentSublevel = MDT:GetCurrentSubLevel()
+  local riftOffsets = VT:GetRiftOffsets()
+  local currentSublevel = VT:GetCurrentSubLevel()
 
   for enemyIdx, data in pairs(enemies) do
     for cloneIdx, clone in pairs(data["clones"]) do
@@ -953,7 +953,7 @@ function MDT:DungeonEnemies_UpdateEnemiesAsync()
       if clone.sublevel == currentSublevel or (not clone.sublevel) then
         --skip rifts that were dragged to another sublevel
         if not (data.corrupted and riftOffsets and riftOffsets[data.id] and riftOffsets[data.id].sublevel) then
-          local blip = MDT.dungeonEnemies_framePool:Acquire()
+          local blip = VT.dungeonEnemies_framePool:Acquire()
           blip.enemyIdx = enemyIdx
           blip.cloneIdx = cloneIdx
           blip:SetUp(data, clone)
@@ -969,7 +969,7 @@ function MDT:DungeonEnemies_UpdateEnemiesAsync()
         for enemyIdx, data in pairs(enemies) do
           if data.id == npcId then
             for cloneIdx, clone in pairs(data["clones"]) do
-              local blip = MDT.dungeonEnemies_framePool:Acquire("MDTDungeonEnemyTemplate")
+              local blip = VT.dungeonEnemies_framePool:Acquire("VTDungeonEnemyTemplate")
               blip:SetUp(data, clone)
               blip.enemyIdx = enemyIdx
               blip.cloneIdx = cloneIdx
@@ -982,13 +982,13 @@ function MDT:DungeonEnemies_UpdateEnemiesAsync()
   end
 end
 
-function MDT:DungeonEnemies_CreateFramePools()
+function VT:DungeonEnemies_CreateFramePools()
   db = self:GetDB()
-  MDT.dungeonEnemies_framePool = MDT.CreateFramePool("Button", MDT.main_frame.mapPanelFrame, "MDTDungeonEnemyTemplate")
+  VT.dungeonEnemies_framePool = VT.CreateFramePool("Button", VT.main_frame.mapPanelFrame, "VTDungeonEnemyTemplate")
 end
 
-function MDT:FindPullOfBlip(blip)
-  local preset = MDT:GetCurrentPreset()
+function VT:FindPullOfBlip(blip)
+  local preset = VT:GetCurrentPreset()
   local pulls = preset.value.pulls or {}
 
   for pullIdx, pull in ipairs(pulls) do
@@ -1002,7 +1002,7 @@ function MDT:FindPullOfBlip(blip)
   end
 end
 
-function MDT:GetBlip(enemyIdx, cloneIdx)
+function VT:GetBlip(enemyIdx, cloneIdx)
   for blipIdx, blip in pairs(blips) do
     if blip.enemyIdx == enemyIdx and blip.cloneIdx == cloneIdx then
       return blip
@@ -1013,16 +1013,16 @@ end
 local function isCloneConstrained(clone)
   if not clone.constrained then return false end
   local amount = 0
-  local data = MDT.dungeonEnemies[db.currentDungeonIdx]
+  local data = VT.dungeonEnemies[db.currentDungeonIdx]
   for enemyIdx, enemy in pairs(data) do
     for cloneIdx, c in pairs(enemy.clones) do
-      if c.constrained and c.constrained.index == clone.constrained.index and MDT:IsCloneInPulls(enemyIdx, cloneIdx) then
+      if c.constrained and c.constrained.index == clone.constrained.index and VT:IsCloneInPulls(enemyIdx, cloneIdx) then
         amount = amount + 1
       end
     end
   end
   if amount >= clone.constrained.amount then
-    print(L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"])
+    print(L["VT: Cannot add enemy - you are trying to add too many enemies of the same kind"])
     return true
   end
   return false
@@ -1030,7 +1030,7 @@ end
 
 ---DungeonEnemies_AddOrRemoveBlipToCurrentPull
 ---Adds or removes an enemy clone and all it's linked npcs to the currently selected pull
-function MDT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(blip, add, ignoreGrouped, pulls, pull, ignoreUpdates)
+function VT:DungeonEnemies_AddOrRemoveBlipToCurrentPull(blip, add, ignoreGrouped, pulls, pull, ignoreUpdates)
   local preset = self:GetCurrentPreset()
   local enemyIdx = blip.enemyIdx
   local cloneIdx = blip.cloneIdx
@@ -1080,9 +1080,9 @@ end
 
 ---DungeonEnemies_UpdateBlipColors
 ---Updates the colors of all selected blips of the specified pull
-function MDT:DungeonEnemies_UpdateBlipColors(pull, r, g, b, pulls)
+function VT:DungeonEnemies_UpdateBlipColors(pull, r, g, b, pulls)
   local week = preset.week
-  local isInspiring = MDT:IsWeekInspiring(week)
+  local isInspiring = VT:IsWeekInspiring(week)
   pulls = pulls or preset.value.pulls
   local p = pulls[pull]
   if not p then return end
@@ -1108,11 +1108,11 @@ function MDT:DungeonEnemies_UpdateBlipColors(pull, r, g, b, pulls)
 end
 
 ---Updates the selected Enemies on the map and marks them according to their pull color
-function MDT:DungeonEnemies_UpdateSelected(pull, pulls, ignoreHulls)
-  preset = MDT:GetCurrentPreset()
+function VT:DungeonEnemies_UpdateSelected(pull, pulls, ignoreHulls)
+  preset = VT:GetCurrentPreset()
   pulls = pulls or preset.value.pulls
   local week = preset.week
-  local isInspiring = MDT:IsWeekInspiring(week)
+  local isInspiring = VT:IsWeekInspiring(week)
   --deselect all
   for _, blip in pairs(blips) do
     blip.texture_SelectedHighlight:Hide()
@@ -1134,7 +1134,7 @@ function MDT:DungeonEnemies_UpdateSelected(pull, pulls, ignoreHulls)
   end
   --highlight all pull enemies
   for pullIdx, p in pairs(pulls) do
-    local r, g, b = MDT:DungeonEnemies_GetPullColor(pullIdx)
+    local r, g, b = VT:DungeonEnemies_GetPullColor(pullIdx)
     for enemyIdx, clones in pairs(p) do
       if tonumber(enemyIdx) then
         for _, cloneIdx in pairs(clones) do
@@ -1170,30 +1170,30 @@ function MDT:DungeonEnemies_UpdateSelected(pull, pulls, ignoreHulls)
       end
     end
   end
-  -- if not ignoreHulls then MDT:DrawAllHulls(pulls) end
+  -- if not ignoreHulls then VT:DrawAllHulls(pulls) end
 end
 
 ---DungeonEnemies_SetPullColor
 ---Sets a custom color for a pull
-function MDT:DungeonEnemies_SetPullColor(pull, r, g, b)
-  preset = MDT:GetCurrentPreset()
+function VT:DungeonEnemies_SetPullColor(pull, r, g, b)
+  preset = VT:GetCurrentPreset()
   if not preset.value.pulls[pull] then return end
-  preset.value.pulls[pull]["color"] = MDT:RGBToHex(r, g, b)
+  preset.value.pulls[pull]["color"] = VT:RGBToHex(r, g, b)
 end
 
 ---DungeonEnemies_GetPullColor
 ---Returns the custom color for a pull
-function MDT:DungeonEnemies_GetPullColor(pull, pulls)
+function VT:DungeonEnemies_GetPullColor(pull, pulls)
   pulls = pulls or preset.value.pulls
-  local r, g, b = MDT:HexToRGB(pulls[pull]["color"])
+  local r, g, b = VT:HexToRGB(pulls[pull]["color"])
   if not r then
-    r, g, b = MDT:HexToRGB(db.defaultColor)
-    MDT:DungeonEnemies_SetPullColor(pull, r, g, b)
+    r, g, b = VT:HexToRGB(db.defaultColor)
+    VT:DungeonEnemies_SetPullColor(pull, r, g, b)
   end
   return r, g, b
 end
 
-function MDT:IsNPCInPulls(poi)
+function VT:IsNPCInPulls(poi)
   local week = self:GetEffectivePresetWeek()
   local data = self.dungeonEnemies[db.currentDungeonIdx]
   for enemyIdx, enemy in pairs(data) do
@@ -1201,15 +1201,15 @@ function MDT:IsNPCInPulls(poi)
       local included = false
       for cloneIdx, clone in pairs(enemy.clones) do
         if clone.week[week] then
-          return MDT:IsCloneInPulls(enemyIdx, cloneIdx)
+          return VT:IsCloneInPulls(enemyIdx, cloneIdx)
         end
       end
     end
   end
 end
 
-function MDT:IsCloneInPulls(enemyIdx, cloneIdx)
-  local pulls = MDT:GetCurrentPreset().value.pulls
+function VT:IsCloneInPulls(enemyIdx, cloneIdx)
+  local pulls = VT:GetCurrentPreset().value.pulls
   local numClones = 0
   for _, pull in pairs(pulls) do
     if pull[enemyIdx] then
@@ -1229,8 +1229,8 @@ end
 
 ---tries to retrieve npc name by npcId
 ---only looks for npcs in the current dungeon
-function MDT:GetNPCNameById(npcId)
-  local data = MDT.dungeonEnemies[db.currentDungeonIdx]
+function VT:GetNPCNameById(npcId)
+  local data = VT.dungeonEnemies[db.currentDungeonIdx]
   if data then
     for _, enemy in pairs(data) do
       if enemy.id == npcId then
@@ -1243,17 +1243,17 @@ end
 ---updates the enemy tables with new count and teemingCount or displayId values
 ---data is retrieved with the the get_count.py or get_displayids python script
 ---data needs to afterwards be exported manually for every dungeon
-function MDT:UpdateDungeonData(dungeonData)
+function VT:UpdateDungeonData(dungeonData)
   local function printDungeonName(shouldPrint, dungeonIdx)
     if shouldPrint then
-      print("-----", MDT:GetDungeonName(dungeonIdx))
+      print("-----", VT:GetDungeonName(dungeonIdx))
     end
     return false
   end
 
   for dungeonIdx, newData in pairs(dungeonData) do
     --dungeon total count changes
-    local totalCount = MDT.dungeonTotalCount[dungeonIdx]
+    local totalCount = VT.dungeonTotalCount[dungeonIdx]
     if newData[0] and (newData[0].count ~= totalCount.normal or newData[0].teeming_count ~= totalCount.teeming) then
       print("TOTAL ", totalCount.normal, totalCount.teeming, ">>>", newData[0].count, newData[0].teeming_count)
       totalCount.normal = newData[0].count
@@ -1262,7 +1262,7 @@ function MDT:UpdateDungeonData(dungeonData)
 
     --enemy changes
     local shouldPrintDungeonName = true
-    local enemyData = MDT.dungeonEnemies[dungeonIdx]
+    local enemyData = VT.dungeonEnemies[dungeonIdx]
     if enemyData then
       for _, enemy in pairs(enemyData) do
         --ignore enchanted emissary (gives count but can almost never pull it off, keep 0 to keep it simple)
@@ -1304,16 +1304,16 @@ end
 --Dungeon(name='AtalDazar', idx=15, npcIds=[134739, 161241, 136347]),
 --    Dungeon(name='RandomDungeon', idx=14, npcIds=[161241, 134739, 136347]),
 --]
-function MDT:ExportNPCIdsWithoutDisplayIds()
+function VT:ExportNPCIdsWithoutDisplayIds()
   local output = "dungeons = [\n"
-  for idx = 15, MDT:GetNumDungeons() do
+  for idx = 15, VT:GetNumDungeons() do
     local shouldAddDungeonText = true
-    local enemyData = MDT.dungeonEnemies[idx]
+    local enemyData = VT.dungeonEnemies[idx]
     if enemyData then
       for _, enemy in pairs(enemyData) do
         if not enemy.displayId then
           if shouldAddDungeonText then
-            output = output.."Dungeon(name='"..MDT:GetDungeonName(idx).."', idx="..idx..", npcIds=["
+            output = output.."Dungeon(name='"..VT:GetDungeonName(idx).."', idx="..idx..", npcIds=["
             shouldAddDungeonText = false
           end
           output = output..enemy.id..", "
@@ -1323,14 +1323,14 @@ function MDT:ExportNPCIdsWithoutDisplayIds()
     end
   end
   output = output.."]"
-  MDT:HideAllDialogs()
-  MDT.main_frame.ExportFrame:Show()
-  MDT.main_frame.ExportFrame:ClearAllPoints()
-  MDT.main_frame.ExportFrame:SetPoint("CENTER", MDT.main_frame, "CENTER", 0, 50)
-  MDT.main_frame.ExportFrameEditbox:SetText(output)
-  MDT.main_frame.ExportFrameEditbox:HighlightText(0, string.len(output))
-  MDT.main_frame.ExportFrameEditbox:SetFocus()
-  MDT.main_frame.ExportFrameEditbox:SetLabel("NPC ids without displayId")
+  VT:HideAllDialogs()
+  VT.main_frame.ExportFrame:Show()
+  VT.main_frame.ExportFrame:ClearAllPoints()
+  VT.main_frame.ExportFrame:SetPoint("CENTER", VT.main_frame, "CENTER", 0, 50)
+  VT.main_frame.ExportFrameEditbox:SetText(output)
+  VT.main_frame.ExportFrameEditbox:HighlightText(0, string.len(output))
+  VT.main_frame.ExportFrameEditbox:SetFocus()
+  VT.main_frame.ExportFrameEditbox:SetLabel("NPC ids without displayId")
 end
 
 local function ArrayRemove(t, fnKeep)
@@ -1353,8 +1353,8 @@ local function ArrayRemove(t, fnKeep)
 end
 
 ---removes enemies of the current dungeon without any clones
-function MDT:CleanEnemyData(dungeonIdx)
-  local enemies = MDT.dungeonEnemies[dungeonIdx]
+function VT:CleanEnemyData(dungeonIdx)
+  local enemies = VT.dungeonEnemies[dungeonIdx]
   ArrayRemove(enemies, function(t, i, j)
     local countClones = 0
     for _, _ in pairs(t[i].clones) do

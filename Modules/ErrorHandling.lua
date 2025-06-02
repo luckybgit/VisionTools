@@ -1,14 +1,14 @@
-local AddonName, MDT = ...
+local AddonName, VT = ...
 local AceGUI = LibStub("AceGUI-3.0")
-local L = MDT.L
+local L = VT.L
 local tinsert, slen = table.insert, string.len
 
--- handle most mdt errors internally and provide an easy way for users to report these errors
+-- handle most VT errors internally and provide an easy way for users to report these errors
 
 local caughtErrors = {}
 
 local function getDiagnostics()
-  local presetExport = MDT:TableToString(MDT:GetCurrentPreset(), true, 5)
+  local presetExport = VT:TableToString(VT:GetCurrentPreset(), true, 5)
   ---@diagnostic disable-next-line: redundant-parameter
   local addonVersion = C_AddOns.GetAddOnMetadata(AddonName, "Version")
   local locale = GetLocale()
@@ -44,41 +44,41 @@ end
 
 local hasShown = false
 
-function MDT:DisplayErrors(force)
+function VT:DisplayErrors(force)
   if not force and hasShown then return end
   hasShown = true
   if #caughtErrors == 0 then return end
-  if MDT.initSpinner then
-    MDT.initSpinner:Hide()
-    MDT.initSpinner.Anim:Stop()
+  if VT.initSpinner then
+    VT.initSpinner:Hide()
+    VT.initSpinner.Anim:Stop()
   end
 
   local function startCopyAction(editBox, copyButton, text)
     editBox:HighlightText(0, slen(text))
     editBox:SetFocus()
     copyButton:SetDisabled(true)
-    MDT.copyHelper:SmartShow(MDT.errorFrame.frame, 0, 0)
+    VT.copyHelper:SmartShow(VT.errorFrame.frame, 0, 0)
   end
 
   local function stopCopyAction(copyButton)
     copyButton:SetDisabled(false)
-    MDT.copyHelper:SmartHide()
+    VT.copyHelper:SmartHide()
   end
 
   local errorBoxText = ""
 
-  if not MDT.errorFrame then
-    MDT.errorFrame = AceGUI:Create("Frame")
-    _G["MDTErrorFrame"] = MDT.errorFrame.frame
-    tinsert(UISpecialFrames, "MDTErrorFrame")
-    local errorFrame = MDT.errorFrame
+  if not VT.errorFrame then
+    VT.errorFrame = AceGUI:Create("Frame")
+    _G["VTErrorFrame"] = VT.errorFrame.frame
+    tinsert(UISpecialFrames, "VTErrorFrame")
+    local errorFrame = VT.errorFrame
     errorFrame:EnableResize(false)
     errorFrame:SetWidth(800)
     errorFrame:SetHeight(600)
     errorFrame:EnableResize(false)
     errorFrame:SetLayout("Flow")
     errorFrame:SetCallback("OnClose", function(widget) end)
-    errorFrame:SetTitle(L["MDT Error"])
+    errorFrame:SetTitle(L["VT Error"])
     errorFrame.label = AceGUI:Create("Label")
     errorFrame.label:SetWidth(800)
     errorFrame.label:SetFontObject("GameFontNormalLarge")
@@ -86,7 +86,7 @@ function MDT:DisplayErrors(force)
     errorFrame.label:SetText(L["errorLabel1"].."\n"..L["errorLabel2"])
     errorFrame:AddChild(errorFrame.label)
 
-    for _, dest in ipairs(MDT.externalLinks) do
+    for _, dest in ipairs(VT.externalLinks) do
       errorFrame[dest.name.."EditBox"] = AceGUI:Create("EditBox")
       local editBox = errorFrame[dest.name.."EditBox"]
       local copyButton
@@ -102,11 +102,11 @@ function MDT:DisplayErrors(force)
         stopCopyAction(copyButton)
       end);
       editBox.editbox:SetScript('OnKeyUp', function(_, key)
-        if (MDT.copyHelper:WasControlKeyDown() and key == 'C') then
-          MDT.copyHelper:SmartFadeOut()
+        if (VT.copyHelper:WasControlKeyDown() and key == 'C') then
+          VT.copyHelper:SmartFadeOut()
           editBox:ClearFocus();
         else
-          MDT.copyHelper:SmartHide()
+          VT.copyHelper:SmartHide()
         end
       end);
       errorFrame[dest.name.."CopyButton"] = AceGUI:Create("Button")
@@ -134,11 +134,11 @@ function MDT:DisplayErrors(force)
       stopCopyAction(errorBoxCopyButton)
     end);
     errorBox.editBox:SetScript('OnKeyUp', function(_, key)
-      if (MDT.copyHelper:WasControlKeyDown() and key == 'C') then
-        MDT.copyHelper:SmartFadeOut()
+      if (VT.copyHelper:WasControlKeyDown() and key == 'C') then
+        VT.copyHelper:SmartFadeOut()
         errorBox:ClearFocus();
       else
-        MDT.copyHelper:SmartHide()
+        VT.copyHelper:SmartHide()
       end
     end);
 
@@ -155,34 +155,34 @@ function MDT:DisplayErrors(force)
     hardResetButton:SetText(L["hardResetButton"])
     hardResetButton:SetHeight(40)
     hardResetButton:SetCallback("OnClick", function(widget, callbackName, value)
-      MDT:Async(function()
-        MDT:OpenConfirmationFrame(450, 150, L["hardResetPromptTitle"], L["Delete"], L["hardResetPrompt"], MDT.HardReset)
+      VT:Async(function()
+        VT:OpenConfirmationFrame(450, 150, L["hardResetPromptTitle"], L["Delete"], L["hardResetPrompt"], VT.HardReset)
       end, "hardReset")
     end)
 
     errorFrame:AddChild(errorFrame.errorBox)
     errorFrame:AddChild(errorFrame.errorBoxCopyButton)
     errorFrame:AddChild(errorFrame.hardResetButton)
-    if MDT.main_frame then
+    if VT.main_frame then
       --error button
       local errorButton = AceGUI:Create("Icon")
       errorButton:SetImage("Interface\\AddOns\\MythicDungeonTools\\Textures\\icons", 0.76, 1, 0.25, 0.5)
       errorButton:SetCallback("OnClick", function(widget, callbackName)
-        MDT:DisplayErrors("true")
+        VT:DisplayErrors("true")
       end)
       errorButton.tooltipText = L["encounteredErrors"]
       errorButton:SetWidth(24)
       errorButton:SetImageSize(20, 20)
       errorButton:SetCallback("OnEnter", function(widget, callbackName)
-        MDT:ToggleToolbarTooltip(true, widget, "ANCHOR_TOPLEFT")
+        VT:ToggleToolbarTooltip(true, widget, "ANCHOR_TOPLEFT")
       end)
       errorButton:SetCallback("OnLeave", function()
-        MDT:ToggleToolbarTooltip(false)
+        VT:ToggleToolbarTooltip(false)
       end)
 
-      local externalButtonGroup = MDT.main_frame.externalButtonGroup
+      local externalButtonGroup = VT.main_frame.externalButtonGroup
       externalButtonGroup:AddChild(errorButton)
-      MDT:FixAceGUIShowHide(externalButtonGroup, MDT.main_frame)
+      VT:FixAceGUIShowHide(externalButtonGroup, VT.main_frame)
     end
   end
 
@@ -191,7 +191,7 @@ function MDT:DisplayErrors(force)
   end
   --add diagnostics
   local diagnostics = getDiagnostics()
-  errorBoxText = errorBoxText.."\n"..diagnostics.dateString.."\nMDT: "..diagnostics.addonVersion.."\nClient: "..diagnostics.gameVersion.." "..diagnostics.locale.."\nCharacter: "..diagnostics.name.."-"..diagnostics.realm.." ("..diagnostics.region..")"
+  errorBoxText = errorBoxText.."\n"..diagnostics.dateString.."\nVT: "..diagnostics.addonVersion.."\nClient: "..diagnostics.gameVersion.." "..diagnostics.locale.."\nCharacter: "..diagnostics.name.."-"..diagnostics.realm.." ("..diagnostics.region..")"
   errorBoxText = errorBoxText.."\n"..diagnostics.combatState.."\n"..diagnostics.zoneInfo.."\n"
   errorBoxText = errorBoxText.."\nRoute:\n"..diagnostics.presetExport
   errorBoxText = errorBoxText.."\nStacktraces\n\n"
@@ -199,8 +199,8 @@ function MDT:DisplayErrors(force)
     errorBoxText = errorBoxText..error.stackTrace.."\n"
   end
 
-  MDT.errorFrame.errorBox:SetText(errorBoxText)
-  MDT.errorFrame:Show()
+  VT.errorFrame.errorBox:SetText(errorBoxText)
+  VT.errorFrame:Show()
 end
 
 local numError = 0
@@ -222,29 +222,29 @@ local function onError(msg, stackTrace, name)
   tinsert(caughtErrors, { message = e, stackTrace = stackTraceValue, count = 1 })
   addTrace = true
   local diagnostics = getDiagnostics()
-  local diagnosticString = diagnostics.dateString.."\nMDT: "..diagnostics.addonVersion.."\nClient: "..diagnostics.gameVersion.." "..diagnostics.locale.."\n"..diagnostics.region
-  -- MDT.WagoAnalytics:Error(e..diagnosticString)
-  if MDT.errorTimer then MDT.errorTimer:Cancel() end
-  MDT.errorTimer = C_Timer.NewTimer(0.5, function()
-    MDT:DisplayErrors(true)
+  local diagnosticString = diagnostics.dateString.."\nVT: "..diagnostics.addonVersion.."\nClient: "..diagnostics.gameVersion.." "..diagnostics.locale.."\n"..diagnostics.region
+  -- VT.WagoAnalytics:Error(e..diagnosticString)
+  if VT.errorTimer then VT.errorTimer:Cancel() end
+  VT.errorTimer = C_Timer.NewTimer(0.5, function()
+    VT:DisplayErrors(true)
   end)
   --if spam erroring then show errors early otherwise risk error display never showing
   if numError > 100 then
-    MDT:DisplayErrors(true)
+    VT:DisplayErrors(true)
   end
   return false
 end
 
 --accessible function for errors in coroutines
-function MDT:OnError(msg, stackTrace, name)
+function VT:OnError(msg, stackTrace, name)
   onError(msg, stackTrace, name)
 end
 
-function MDT:GetErrors()
+function VT:GetErrors()
   return caughtErrors
 end
 
-function MDT:RegisterErrorHandledFunctions()
+function VT:RegisterErrorHandledFunctions()
   --register all functions except the ones that have to run as coroutines
   local blacklisted = {
     ["DungeonEnemies_UpdateSelected"] = true,
@@ -268,7 +268,7 @@ function MDT:RegisterErrorHandledFunctions()
     ["DeepCopy"] = true,
   }
   local tablesToAdd = {
-    MDT, MDTDungeonEnemyMixin
+    VT, VTDungeonEnemyMixin
   }
   for k, table in pairs(tablesToAdd) do
     for funcName, func in pairs(table) do

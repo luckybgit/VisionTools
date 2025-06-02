@@ -1,12 +1,12 @@
-local MDT = MDT
-local L = MDT.L
-local MDTcommsObject = MDTcommsObject
+local VT = VT
+local L = VT.L
+local VTcommsObject = VTcommsObject
 local twipe, tinsert = table.wipe, table.insert
 
 local timer
 local requestTimer
 ---LiveSession_Enable
-function MDT:LiveSession_Enable()
+function VT:LiveSession_Enable()
   if self.liveSessionActive then return end
   self.main_frame.LiveSessionButton:SetText(L["*Live*"])
   self.main_frame.LiveSessionButton.text:SetTextColor(0, 1, 0)
@@ -26,7 +26,7 @@ function MDT:LiveSession_Enable()
       self.liveSessionRequested = false
       local distribution = self:IsPlayerInGroup()
       local preset = self:GetCurrentPreset()
-      local prefix = "[MDTLive: "
+      local prefix = "[VTLive: "
       local dungeon = self:GetDungeonName(preset.value.currentDungeonIdx)
       local presetName = preset.text
       local name, realm = UnitFullName("player")
@@ -34,24 +34,24 @@ function MDT:LiveSession_Enable()
       SendChatMessage(prefix..fullName.." - "..dungeon..": "..presetName.."]", distribution)
     end
     local cancelCallback = function()
-      MDT:LiveSession_Disable()
+      VT:LiveSession_Disable()
     end
     local fireCancelOnClose = true
-    MDT:CheckPresetSize(callback, cancelCallback, fireCancelOnClose)
+    VT:CheckPresetSize(callback, cancelCallback, fireCancelOnClose)
   end)
 end
 
 ---LiveSession_Disable
-function MDT:LiveSession_Disable()
-  local widget = MDT.main_frame.LiveSessionButton
+function VT:LiveSession_Disable()
+  local widget = VT.main_frame.LiveSessionButton
   widget.text:SetTextColor(widget.normalTextColor.r, widget.normalTextColor.g, widget.normalTextColor.b)
   widget.text:SetText(L["Live"])
-  MDT.main_frame.LinkToChatButton:SetDisabled(false)
+  VT.main_frame.LinkToChatButton:SetDisabled(false)
   self.main_frame.LinkToChatButton.text:SetTextColor(1, 0.8196, 0)
-  local db = MDT:GetDB()
-  if db.presets[db.currentDungeonIdx][1] == MDT:GetCurrentPreset() then
-    MDT.main_frame.sidePanelDeleteButton:SetDisabled(true)
-    MDT.main_frame.sidePanelDeleteButton.text:SetTextColor(0.5, 0.5, 0.5)
+  local db = VT:GetDB()
+  if db.presets[db.currentDungeonIdx][1] == VT:GetCurrentPreset() then
+    VT.main_frame.sidePanelDeleteButton:SetDisabled(true)
+    VT.main_frame.sidePanelDeleteButton.text:SetTextColor(0.5, 0.5, 0.5)
   else
     self.main_frame.sidePanelDeleteButton:SetDisabled(false)
     self.main_frame.sidePanelDeleteButton.text:SetTextColor(1, 0.8196, 0)
@@ -72,29 +72,29 @@ end
 
 ---Notify specific group member that my live session is active
 local lastNotify
-function MDT:LiveSession_NotifyEnabled()
+function VT:LiveSession_NotifyEnabled()
   local now = GetTime()
   if not lastNotify or lastNotify < now - 0.2 then
     lastNotify = now
     local distribution = self:IsPlayerInGroup()
     if (not distribution) or (not self.liveSessionActive) then return end
     local uid = self.livePresetUID
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.enabled, uid, distribution, nil, "ALERT")
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.enabled, uid, distribution, nil, "ALERT")
   end
   --self:SendToGroup(self:IsPlayerInGroup(),true,self:GetCurrentLivePreset())
 end
 
 ---Send a request to the group to send notify messages for active sessions
-function MDT:LiveSession_RequestSession()
+function VT:LiveSession_RequestSession()
   local distribution = self:IsPlayerInGroup()
   if (not distribution) or (not self.liveSessionActive) then return end
   self.liveSessionRequested = true
   self.liveSessionActiveSessions = self.liveSessionActiveSessions or {}
   twipe(self.liveSessionActiveSessions)
-  MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.request, "0", distribution, nil, "ALERT")
+  VTcommsObject:SendCommMessage(self.liveSessionPrefixes.request, "0", distribution, nil, "ALERT")
 end
 
-function MDT:LiveSession_SessionFound(fullName, uid)
+function VT:LiveSession_SessionFound(fullName, uid)
   local fullNamePlayer, realm = UnitFullName("player")
   fullNamePlayer = fullNamePlayer.."-"..realm
 
@@ -109,7 +109,7 @@ function MDT:LiveSession_SessionFound(fullName, uid)
         self.main_frame.SendingStatusBar:SetValue(0 / 1)
         self.main_frame.SendingStatusBar.value:SetText(L["Receiving: ..."])
         if not self.main_frame.LoadingSpinner then
-          self.main_frame.LoadingSpinner = CreateFrame("Button", "MDTLoadingSpinner", self.main_frame,
+          self.main_frame.LoadingSpinner = CreateFrame("Button", "VTLoadingSpinner", self.main_frame,
             "LoadingSpinnerTemplate")
           self.main_frame.LoadingSpinner:SetPoint("CENTER", self.main_frame, "CENTER")
           self.main_frame.LoadingSpinner:SetSize(60, 60)
@@ -131,109 +131,109 @@ function MDT:LiveSession_SessionFound(fullName, uid)
   tinsert(self.liveSessionActiveSessions, { fullName, uid })
 end
 
-function MDT:LiveSession_RequestPreset(fullName)
+function VT:LiveSession_RequestPreset(fullName)
   local distribution = self:IsPlayerInGroup()
   if (not distribution) or (not self.liveSessionActive) then return end
-  MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.reqPre, fullName, distribution, nil, "ALERT")
+  VTcommsObject:SendCommMessage(self.liveSessionPrefixes.reqPre, fullName, distribution, nil, "ALERT")
 end
 
 ---Sends a map ping
-function MDT:LiveSession_SendPing(x, y, sublevel)
+function VT:LiveSession_SendPing(x, y, sublevel)
   --only send ping if we are in the livesession preset
   if self:GetCurrentPreset().uid == self.livePresetUID then
     local distribution = self:IsPlayerInGroup()
     if distribution then
       local scale = self:GetScale()
-      MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.ping, x * (1 / scale)..":"..y * (1 / scale)..
+      VTcommsObject:SendCommMessage(self.liveSessionPrefixes.ping, x * (1 / scale)..":"..y * (1 / scale)..
         ":"..sublevel, distribution, nil, "ALERT")
     end
   end
 end
 
 ---Sends a preset object
-function MDT:LiveSession_SendObject(obj)
+function VT:LiveSession_SendObject(obj)
   if self:GetCurrentPreset().uid == self.livePresetUID then
     local distribution = self:IsPlayerInGroup()
     if distribution then
-      local export = MDT:TableToString(obj, false, 5)
+      local export = VT:TableToString(obj, false, 5)
       local silent, fromLiveSession = true, true
-      MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.obj, export, distribution, nil, "BULK", MDT.displaySendingProgress,
+      VTcommsObject:SendCommMessage(self.liveSessionPrefixes.obj, export, distribution, nil, "BULK", VT.displaySendingProgress,
         { distribution, nil, silent, fromLiveSession })
     end
   end
 end
 
 ---Sends updated object offsets (move object)
-function MDT:LiveSession_SendObjectOffsets(objIdx, x, y)
+function VT:LiveSession_SendObjectOffsets(objIdx, x, y)
   if self:GetCurrentPreset().uid == self.livePresetUID then
     local distribution = self:IsPlayerInGroup()
     if distribution then
-      MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.objOff, objIdx..":"..x..":"..y, distribution, nil,
+      VTcommsObject:SendCommMessage(self.liveSessionPrefixes.objOff, objIdx..":"..x..":"..y, distribution, nil,
         "ALERT")
     end
   end
 end
 
 ---Sends updated objects - instead of sending an update every time we erase a part of an object we send one message after mouse up
-function MDT:LiveSession_SendUpdatedObjects(changedObjects)
+function VT:LiveSession_SendUpdatedObjects(changedObjects)
   if self:GetCurrentPreset().uid == self.livePresetUID then
     local distribution = self:IsPlayerInGroup()
     if distribution then
-      local export = MDT:TableToString(changedObjects, false, 5)
-      MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.objChg, export, distribution, nil, "ALERT")
+      local export = VT:TableToString(changedObjects, false, 5)
+      VTcommsObject:SendCommMessage(self.liveSessionPrefixes.objChg, export, distribution, nil, "ALERT")
     end
   end
 end
 
 ---Sends various commands: delete all drawings, clear preset, undo, redo
-function MDT:LiveSession_SendCommand(cmd)
+function VT:LiveSession_SendCommand(cmd)
   if self:GetCurrentPreset().uid == self.livePresetUID then
     local distribution = self:IsPlayerInGroup()
     if distribution then
-      MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.cmd, cmd, distribution, nil, "ALERT")
+      VTcommsObject:SendCommMessage(self.liveSessionPrefixes.cmd, cmd, distribution, nil, "ALERT")
     end
   end
 end
 
 ---Sends a note text update
-function MDT:LiveSession_SendNoteCommand(cmd, noteIdx, text, y)
+function VT:LiveSession_SendNoteCommand(cmd, noteIdx, text, y)
   if self:GetCurrentPreset().uid == self.livePresetUID then
     local distribution = self:IsPlayerInGroup()
     if distribution then
       text = text..":"..(y or "0")
-      MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.note, cmd..":"..noteIdx..":"..text, distribution,
+      VTcommsObject:SendCommMessage(self.liveSessionPrefixes.note, cmd..":"..noteIdx..":"..text, distribution,
         nil, "ALERT")
     end
   end
 end
 
 ---Sends a new preset to be used as the new live session preset
-function MDT:LiveSession_SendPreset(preset)
+function VT:LiveSession_SendPreset(preset)
   local distribution = self:IsPlayerInGroup()
   if distribution then
     local db = self:GetDB()
     preset.difficulty = db.currentDifficulty
-    local export = MDT:TableToString(preset, false, 5)
+    local export = VT:TableToString(preset, false, 5)
     local silent, fromLiveSession = true, true
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.preset, export, distribution, nil, "BULK", MDT.displaySendingProgress,
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.preset, export, distribution, nil, "BULK", VT.displaySendingProgress,
       { distribution, preset, silent, fromLiveSession })
   end
 end
 
 ---Sends all pulls
-function MDT:LiveSession_SendPulls(pulls)
+function VT:LiveSession_SendPulls(pulls)
   local distribution = self:IsPlayerInGroup()
   if distribution then
-    local msg = MDT:TableToString(pulls, false, 5)
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.pull, msg, distribution, nil, "ALERT")
+    local msg = VT:TableToString(pulls, false, 5)
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.pull, msg, distribution, nil, "ALERT")
   end
 end
 
 ---Sends Affix Week Change
-function MDT:LiveSession_SendAffixWeek(week)
+function VT:LiveSession_SendAffixWeek(week)
   local distribution = self:IsPlayerInGroup()
   if distribution then
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.week, week.."", distribution, nil, "ALERT")
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.week, week.."", distribution, nil, "ALERT")
   end
 end
 
@@ -242,7 +242,7 @@ do
   ---LiveSession_QueueColorUpdate
   ---Disgusting workaround for shitty colorpicker
   ---Only send an update once a color of a pull has not changed for 0.2 seconds
-  function MDT:LiveSession_QueueColorUpdate()
+  function VT:LiveSession_QueueColorUpdate()
     if colorTimer then colorTimer:Cancel() end
     colorTimer = C_Timer.NewTimer(0.2, function()
       self:LiveSession_SendPulls(self:GetPulls())
@@ -251,27 +251,27 @@ do
 end
 
 ---Sends Corrupted NPC Offset Positions
-function MDT:LiveSession_SendCorruptedPositions(offsets)
+function VT:LiveSession_SendCorruptedPositions(offsets)
   local distribution = self:IsPlayerInGroup()
   if distribution then
-    local export = MDT:TableToString(offsets, false, 5)
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.corrupted, export, distribution, nil, "ALERT")
+    local export = VT:TableToString(offsets, false, 5)
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.corrupted, export, distribution, nil, "ALERT")
   end
 end
 
 ---Sends current difficulty
-function MDT:LiveSession_SendDifficulty()
+function VT:LiveSession_SendDifficulty()
   local distribution = self:IsPlayerInGroup()
   if distribution then
     local export = self:GetDB().currentDifficulty
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.difficulty, export.."", distribution, nil, "ALERT")
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.difficulty, export.."", distribution, nil, "ALERT")
   end
 end
 
-function MDT:LiveSession_SendPOIAssignment(sublevel, poiIdx, value)
+function VT:LiveSession_SendPOIAssignment(sublevel, poiIdx, value)
   local distribution = self:IsPlayerInGroup()
   if distribution then
-    local export = MDT:TableToString({ sublevel, poiIdx, value }, false, 5)
-    MDTcommsObject:SendCommMessage(self.liveSessionPrefixes.poiAssignment, export, distribution, nil, "ALERT")
+    local export = VT:TableToString({ sublevel, poiIdx, value }, false, 5)
+    VTcommsObject:SendCommMessage(self.liveSessionPrefixes.poiAssignment, export, distribution, nil, "ALERT")
   end
 end

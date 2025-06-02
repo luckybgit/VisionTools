@@ -1,4 +1,4 @@
-local AddonName, MDT = ...
+local AddonName, VT = ...
 
 local framePools = {}
 
@@ -14,7 +14,7 @@ local overrides = {
   }
 }
 
-function MDT.CreateFramePool(frametype, parent, template)
+function VT.CreateFramePool(frametype, parent, template)
   local pool = {
     active = {},
     inactive = {},
@@ -44,6 +44,6 @@ function MDT.CreateFramePool(frametype, parent, template)
   return pool
 end
 
-function MDT.GetFramePool(template)
+function VT.GetFramePool(template)
   return framePools[template]
 end

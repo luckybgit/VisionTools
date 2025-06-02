@@ -1,10 +1,10 @@
 local addonName = ...
-local MDT = MDT
-local L = MDT.L
+local VT = VT
+local L = VT.L
 
 local dungeonIndex = 113
-MDT.dungeonList[dungeonIndex] = L["AraKara"]
-MDT.mapInfo[dungeonIndex] = {
+VT.dungeonList[dungeonIndex] = L["AraKara"]
+VT.mapInfo[dungeonIndex] = {
   teleportId = 445417,
   shortName = L["araKaraShortName"],
   englishName = "Ara-Kara",
@@ -13,21 +13,21 @@ MDT.mapInfo[dungeonIndex] = {
 
 local zones = { 2216, 2357, 2358 } -- TODO remove 2216 WHEN ARAKARA IS GONE FROM ROTATION
 for _, zone in ipairs(zones) do
-  MDT.zoneIdToDungeonIdx[zone] = dungeonIndex
+  VT.zoneIdToDungeonIdx[zone] = dungeonIndex
 end
 
-MDT.dungeonMaps[dungeonIndex] = {
+VT.dungeonMaps[dungeonIndex] = {
   [0] = "",
   [1] = { customTextures = 'Interface\\AddOns\\'..addonName..'\\TheWarWithin\\Textures\\AraKara' }
 }
 
-MDT.dungeonSubLevels[dungeonIndex] = {
+VT.dungeonSubLevels[dungeonIndex] = {
   [1] = L["AraKara"]
 }
 
-MDT.dungeonTotalCount[dungeonIndex] = { normal = 485, teeming = 1000, teemingEnabled = true }
+VT.dungeonTotalCount[dungeonIndex] = { normal = 485, teeming = 1000, teemingEnabled = true }
 
-MDT.mapPOIs[dungeonIndex] = {
+VT.mapPOIs[dungeonIndex] = {
   [1] = {
     [1] = {
       ["template"] = "MapLinkPinTemplate",
@@ -68,7 +68,7 @@ MDT.mapPOIs[dungeonIndex] = {
   },
 };
 
-MDT.dungeonEnemies[dungeonIndex] = {
+VT.dungeonEnemies[dungeonIndex] = {
   [1] = {
     ["name"] = "Ravenous Crawler",
     ["id"] = 216336,

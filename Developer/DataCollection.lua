@@ -1,7 +1,7 @@
 ---Track spells casted by enemies, susceptibility to crowd control and base health and add them to the dataset
 local db
 local f
-local MDT = MDT
+local VT = VT
 
 -- CHANGE HERE TO DEFINE WHICH DUNGEONS TO TRACK FOR DATA COLLECTION
 local dungeonsToTrack = {
@@ -15,10 +15,10 @@ local dungeonsToTrack = {
   [8] = 122,
 }
 
-MDT.DataCollection = {}
-local DC = MDT.DataCollection
+VT.DataCollection = {}
+local DC = VT.DataCollection
 function DC:Init()
-  db = MDT:GetDB()
+  db = VT:GetDB()
   db.dataCollection = db.dataCollection or {}
   db.dataCollectionCC = db.dataCollectionCC or {}
   db.dataCollectionGUID = db.dataCollectionGUID or {}
@@ -35,16 +35,16 @@ function DC:Init()
   for k, dungeonIndex in pairs(dungeonsToTrack) do
     DC:AddCollectedDataToEnemyTable(dungeonIndex)
   end
-  MDT:CleanEnemyInfoSpells()
+  VT:CleanEnemyInfoSpells()
 end
 
 function DC:AddCollectedDataToEnemyTable(dungeonIndex, ignoreSpells, ignoreCC)
-  db = MDT:GetDB()
+  db = VT:GetDB()
   if not dungeonIndex then dungeonIndex = db.currentDungeonIdx end
   --add spells/characteristics from db to dungeonEnemies
   local spellsAdded = 0
   local ccAdded = 0
-  local enemies = MDT.dungeonEnemies[dungeonIndex]
+  local enemies = VT.dungeonEnemies[dungeonIndex]
   local collectedData = db.dataCollection[dungeonIndex]
   if collectedData and not ignoreSpells then
     for id, spells in pairs(collectedData) do
@@ -352,7 +352,7 @@ function DC.COMBAT_LOG_EVENT_UNFILTERED(self, ...)
     id = tonumber(id)
     --dungeon
     for _, i in pairs(dungeonsToTrack) do
-      local enemies = MDT.dungeonEnemies[i]
+      local enemies = VT.dungeonEnemies[i]
       -- enemy
       for enemyIdx, enemy in pairs(enemies) do
         if id and spellId and enemy.id == id then
@@ -373,7 +373,7 @@ function DC.COMBAT_LOG_EVENT_UNFILTERED(self, ...)
 
     --dungeon
     for _, i in pairs(dungeonsToTrack) do
-      local enemies = MDT.dungeonEnemies[i]
+      local enemies = VT.dungeonEnemies[i]
       -- enemy
       for enemyIdx, enemy in pairs(enemies) do
         if enemy.id == id then
@@ -396,30 +396,30 @@ function DC.COMBAT_LOG_EVENT_UNFILTERED(self, ...)
 end
 
 ---Request users in party/raid to distribute their collected data
-function MDT:RequestDataCollectionUpdate()
-  print("MDT: Requesting collected data from group members...")
+function VT:RequestDataCollectionUpdate()
+  print("VT: Requesting collected data from group members...")
   local distribution = self:IsPlayerInGroup()
   if not distribution then return end
-  MDTcommsObject:SendCommMessage(self.dataCollectionPrefixes.request, "0", distribution, nil, "ALERT")
+  VTcommsObject:SendCommMessage(self.dataCollectionPrefixes.request, "0", distribution, nil, "ALERT")
 end
 
 ---Distribute collected data to party/raid
 function DC:DistributeData()
-  local distribution = MDT:IsPlayerInGroup()
+  local distribution = VT:IsPlayerInGroup()
   if not distribution then return end
-  db = MDT:GetDB()
+  db = VT:GetDB()
   local package = {
     [1] = db.dataCollection,
     [2] = db.dataCollectionCC
   }
-  local export = MDT:TableToString(package, false, 5)
-  MDTcommsObject:SendCommMessage(MDT.dataCollectionPrefixes.distribute, export, distribution, nil, "BULK", nil, nil)
+  local export = VT:TableToString(package, false, 5)
+  VTcommsObject:SendCommMessage(VT.dataCollectionPrefixes.distribute, export, distribution, nil, "BULK", nil, nil)
 end
 
 ---Merge received collected data into own data collection
 function DC:MergeReceiveData(package)
-  print("MDT: Merging received collected data")
-  db = MDT:GetDB()
+  print("VT: Merging received collected data")
+  db = VT:GetDB()
   local collection, collectionCC = unpack(package)
   --db.dataCollection[dungeonIdx][npcId][spellId]
   for dungeonIdx, npcs in pairs(collection) do
@@ -454,13 +454,13 @@ function DC:MergeReceiveData(package)
     end
   end
   DC:AddCollectedDataToEnemyTable()
-  MDT:CleanEnemyInfoSpells()
+  VT:CleanEnemyInfoSpells()
 end
 
-function MDT:CleanEnemyInfoSpells()
-  local blacklist = MDT:GetEnemyInfoSpellBlacklist()
+function VT:CleanEnemyInfoSpells()
+  local blacklist = VT:GetEnemyInfoSpellBlacklist()
   for i = 1, 200 do
-    local enemies = MDT.dungeonEnemies[i]
+    local enemies = VT.dungeonEnemies[i]
     if enemies then
       for enemyIdx, enemy in pairs(enemies) do
         if enemy.spells then
@@ -473,11 +473,11 @@ function MDT:CleanEnemyInfoSpells()
       end
     end
   end
-  if MDT.EnemyInfoFrame then MDT.EnemyInfoFrame:Hide() end
+  if VT.EnemyInfoFrame then VT.EnemyInfoFrame:Hide() end
 end
 
 function DC:InitHealthTrack()
-  db = MDT:GetDB()
+  db = VT:GetDB()
   if not db.healthTrackVersion or db.healthTrackVersion < 2 then
     db.healthTrackVersion = 2
     db.healthTracking = {}
@@ -528,32 +528,32 @@ function DC:InitHealthTrack()
     end
   end)
 
-  function MDT:ProcessHealthTrack()
-    local enemies = MDT.dungeonEnemies[db.currentDungeonIdx]
+  function VT:ProcessHealthTrack()
+    local enemies = VT.dungeonEnemies[db.currentDungeonIdx]
     if enemies then
       local numEnemyHealthChanged = 0
       for enemyIdx, enemy in pairs(enemies) do
         local tracked = db.healthTracking[enemy.id]
         if tracked then
           local isBoss = enemy.isBoss and true or false
-          local baseHealth = MDT:ReverseCalcEnemyHealth(tracked.health, tracked.level, isBoss, tracked.fortified,
+          local baseHealth = VT:ReverseCalcEnemyHealth(tracked.health, tracked.level, isBoss, tracked.fortified,
             tracked.tyrannical)
           if baseHealth ~= enemy.health then
             numEnemyHealthChanged = numEnemyHealthChanged + 1
           end
           enemy.health = baseHealth
         else
-          print("MDT HPTRACK: Missing: "..enemy.name.." id: "..enemy.id)
+          print("VT HPTRACK: Missing: "..enemy.name.." id: "..enemy.id)
         end
       end
-      print("MDT HPTRACK: Processed "..numEnemyHealthChanged.." enemies")
+      print("VT HPTRACK: Processed "..numEnemyHealthChanged.." enemies")
     end
   end
 end
 
 do
-  function MDT:CompleteCharacteristics()
-    local dungeonIdx = MDT:GetDB().currentDungeonIdx
+  function VT:CompleteCharacteristics()
+    local dungeonIdx = VT:GetDB().currentDungeonIdx
 
     local function handleEnemy(enemy)
       enemy.characteristics = enemy.characteristics or {}
@@ -578,7 +578,7 @@ do
       end
     end
 
-    local enemies = MDT.dungeonEnemies[dungeonIdx]
+    local enemies = VT.dungeonEnemies[dungeonIdx]
     for enemyIdx, enemy in pairs(enemies) do
       handleEnemy(enemy)
     end

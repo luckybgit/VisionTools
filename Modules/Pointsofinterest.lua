@@ -1,15 +1,15 @@
-local MDT = MDT
-local L = MDT.L
+local VT = VT
+local L = VT.L
 local db
 local tinsert, slen, pairs, tremove, twipe = table.insert, string.len, pairs, table.remove, table.wipe
 
 local points = {}
 
-function MDT:POI_CreateFramePools()
-  MDT.CreateFramePool("Button", MDT.main_frame.mapPanelFrame, "MapLinkPinTemplate")
-  MDT.CreateFramePool("Button", MDT.main_frame.mapPanelFrame, "DeathReleasePinTemplate")
-  MDT.CreateFramePool("Button", MDT.main_frame.mapPanelFrame, "VignettePinTemplate")
-  MDT.CreateFramePool("Frame", MDT.main_frame.mapPanelFrame, "MDTAnimatedLineTemplate")
+function VT:POI_CreateFramePools()
+  VT.CreateFramePool("Button", VT.main_frame.mapPanelFrame, "MapLinkPinTemplate")
+  VT.CreateFramePool("Button", VT.main_frame.mapPanelFrame, "DeathReleasePinTemplate")
+  VT.CreateFramePool("Button", VT.main_frame.mapPanelFrame, "VignettePinTemplate")
+  VT.CreateFramePool("Frame", VT.main_frame.mapPanelFrame, "VTAnimatedLineTemplate")
 end
 
 local function formatPoiString(formattedText)
@@ -29,11 +29,11 @@ local function POI_SetDevOptions(frame, poi)
   frame:SetScript("OnMouseDown", function(self, button)
     if IsControlKeyDown() and poi.type == "mechagonBot" then
       if poi.botTypeIndex then return end
-      local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+      local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
       local poiData = pois[frame.poiIdx]
       mechagonBotTypeIndexCounter[poi.botType] = mechagonBotTypeIndexCounter[poi.botType] + 1
       poiData.botTypeIndex = mechagonBotTypeIndexCounter[poi.botType]
-      MDT:UpdateMap()
+      VT:UpdateMap()
       return
     end
 
@@ -42,41 +42,41 @@ local function POI_SetDevOptions(frame, poi)
       self.isMoving = true
     end
     if button == "RightButton" then
-      local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+      local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
       tremove(pois, self.poiIdx)
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end
   end)
   frame:SetScript("OnMouseUp", function(self, button)
     if button == "LeftButton" and self.isMoving then
       self.isMoving = false
       self:StopMovingOrSizing()
-      local newx, newy = MDT:GetCursorPosition()
-      local scale = MDT:GetScale()
+      local newx, newy = VT:GetCursorPosition()
+      local scale = VT:GetScale()
       newx = newx * (1 / scale)
       newy = newy * (1 / scale)
-      local pois = MDT.mapPOIs[db.currentDungeonIdx][MDT:GetCurrentSubLevel()]
+      local pois = VT.mapPOIs[db.currentDungeonIdx][VT:GetCurrentSubLevel()]
       pois[self.poiIdx].x = newx
       pois[self.poiIdx].y = newy
       self:ClearAllPoints()
-      MDT:UpdateMap()
+      VT:UpdateMap()
     end
   end)
   frame:SetScript("OnClick", nil)
 end
 
 local createPlayerAssignmentContextMenu = function(frame)
-  MenuUtil.CreateContextMenu(MDT.main_frame, function(ownerRegion, rootDescription)
+  MenuUtil.CreateContextMenu(VT.main_frame, function(ownerRegion, rootDescription)
     rootDescription:CreateTitle(L["dropdownAssignPlayer"])
 
-    local group = MDT.U.GetGroupMembers()
+    local group = VT.U.GetGroupMembers()
     for _, player in pairs(group) do
       local function IsSelected(p)
         return frame.playerAssignmentString:GetText() == p
       end
       local function SetSelected(p)
         frame.playerAssignmentString:SetText(p)
-        MDT:POI_SetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx, p)
+        VT:POI_SetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx, p)
         if frame.setAssigned then
           frame.setAssigned()
         end
@@ -84,7 +84,7 @@ local createPlayerAssignmentContextMenu = function(frame)
       rootDescription:CreateRadio(player, IsSelected, SetSelected, player)
     end
 
-    local classStrings = MDT.U.GetClassColoredClassNames()
+    local classStrings = VT.U.GetClassColoredClassNames()
 
     for _, classString in pairs(classStrings) do
       local function IsSelected(p)
@@ -92,7 +92,7 @@ local createPlayerAssignmentContextMenu = function(frame)
       end
       local function SetSelected(p)
         frame.playerAssignmentString:SetText(p)
-        MDT:POI_SetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx, p)
+        VT:POI_SetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx, p)
         if frame.setAssigned then
           frame.setAssigned()
         end
@@ -102,7 +102,7 @@ local createPlayerAssignmentContextMenu = function(frame)
 
     rootDescription:CreateButton(L["dropdownClear"], function()
       frame.playerAssignmentString:SetText()
-      MDT:POI_SetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx, nil)
+      VT:POI_SetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx, nil)
       if frame.setUnassigned then
         frame.setUnassigned()
       end
@@ -152,12 +152,12 @@ local function POI_SetOptions(frame, type, poi)
     frame.HighlightTexture:SetAtlas(directionToAtlas[poi.direction])
     frame.Texture:SetAtlas(directionToAtlas[poi.direction])
     frame:SetScript("OnClick", function()
-      MDT:SetCurrentSubLevel(poi.target)
-      MDT:UpdateMap()
+      VT:SetCurrentSubLevel(poi.target)
+      VT:UpdateMap()
     end)
     frame:SetScript("OnEnter", function()
       GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
-      GameTooltip:AddLine(MDT:GetDungeonSublevels()[db.currentDungeonIdx][poi.target], 1, 1, 1, 1)
+      GameTooltip:AddLine(VT:GetDungeonSublevels()[db.currentDungeonIdx][poi.target], 1, 1, 1, 1)
       if db.devMode then GameTooltip:AddLine(frame.poi.connectionIndex, 1, 1, 1, 1) end
       GameTooltip:Show()
       frame.HighlightTexture:Show()
@@ -186,7 +186,7 @@ local function POI_SetOptions(frame, type, poi)
       frame.textString:SetJustifyH("CENTER")
       frame.textString:SetTextColor(0.5, 1, 0, 1)
     end
-    local scale = MDT:GetScale()
+    local scale = VT:GetScale()
     frame.textString:SetFontObject("GameFontNormal")
     frame.textString:SetFont(frame.textString:GetFont(), 5 * poiScale * scale, "OUTLINE", "")
     frame.textString:SetPoint("BOTTOM", frame, "BOTTOM", 0, 4 * scale)
@@ -194,17 +194,17 @@ local function POI_SetOptions(frame, type, poi)
     frame:SetScript("OnMouseUp", function(self, button)
       if button == "RightButton" then
         --reset npc location
-        MDT:GetRiftOffsets()[self.npcId] = nil
-        MDT:UpdateMap()
-        if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
-          MDT:LiveSession_SendCorruptedPositions(MDT:GetCurrentPreset().value.riftOffsets)
+        VT:GetRiftOffsets()[self.npcId] = nil
+        VT:UpdateMap()
+        if VT.liveSessionActive and VT:GetCurrentPreset().uid == VT.livePresetUID then
+          VT:LiveSession_SendCorruptedPositions(VT:GetCurrentPreset().value.riftOffsets)
         end
       end
       if button == "LeftButton" then
-        local _, connections = MDT:FindConnectedDoor(frame.npcId, 1)
+        local _, connections = VT:FindConnectedDoor(frame.npcId, 1)
         if connections then
-          MDT:SetCurrentSubLevel(connections[#connections].target)
-          MDT:UpdateMap()
+          VT:SetCurrentSubLevel(connections[#connections].target)
+          VT:UpdateMap()
         end
       end
     end)
@@ -215,7 +215,7 @@ local function POI_SetOptions(frame, type, poi)
       GameTooltip:AddLine(L["Right-Click to reset NPC position"], 1, 1, 1)
       frame.HighlightTexture:Show()
       --highlight associated npc
-      local blips = MDT:GetDungeonEnemyBlips()
+      local blips = VT:GetDungeonEnemyBlips()
       if frame.isSpire then
         for _, blip in pairs(blips) do
           if blip.data.id == poi.npcId then
@@ -227,7 +227,7 @@ local function POI_SetOptions(frame, type, poi)
               blipFrame = blip
               blipFrame.fontstring_Text1:Show()
               --display animated line between poi and npc frame
-              frame.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, frame, blipFrame, nil, nil, nil,
+              frame.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, frame, blipFrame, nil, nil, nil,
                 nil, nil, not frame.isSpire, frame.animatedLine)
               blipFrame.animatedLine = frame.animatedLine
               break
@@ -236,14 +236,14 @@ local function POI_SetOptions(frame, type, poi)
         end
       end
 
-      local connectedDoor, connections = MDT:FindConnectedDoor(frame.npcId, 1)
+      local connectedDoor, connections = VT:FindConnectedDoor(frame.npcId, 1)
       if connectedDoor then
         if frame.isSpire then
-          frame.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, frame, connectedDoor, nil, nil, nil,
+          frame.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, frame, connectedDoor, nil, nil, nil,
             nil, nil, not frame.isSpire, frame.animatedLine)
         end
-        local sublevelName = MDT:GetSublevelName(nil, connections[#connections].target)
-        local npcName = MDT:GetNPCNameById(frame.npcId)
+        local sublevelName = VT:GetSublevelName(nil, connections[#connections].target)
+        local npcName = VT:GetNPCNameById(frame.npcId)
         GameTooltip:AddLine("\n" .. string.format(L["%s is in sublevel: %s"], npcName, sublevelName), 1, 1, 1)
         GameTooltip:AddLine(string.format(L["Click to go to %s"], sublevelName), 1, 1, 1)
       end
@@ -256,11 +256,11 @@ local function POI_SetOptions(frame, type, poi)
         blipFrame.fontstring_Text1:Hide()
       end
       if frame.isSpire then
-        MDT:HideAnimatedLine(frame.animatedLine)
+        VT:HideAnimatedLine(frame.animatedLine)
       end
     end)
     --check expanded status
-    if MDT:IsNPCInPulls(poi) then
+    if VT:IsNPCInPulls(poi) then
       frame.Texture:SetSize(10 * poiScale, 10 * poiScale)
       frame.Texture:SetAtlas("poi-rift1")
       frame.HighlightTexture:SetSize(10 * poiScale, 10 * poiScale)
@@ -540,7 +540,7 @@ local function POI_SetOptions(frame, type, poi)
     frame.playerAssignmentString:SetJustifyV("MIDDLE")
     frame.playerAssignmentString:SetPoint(poi.textAnchor or "LEFT", frame, poi.textAnchorTo or "RIGHT", 0, 0)
     frame.playerAssignmentString:SetTextColor(1, 1, 1, 1)
-    frame.playerAssignmentString:SetText(MDT:POI_GetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx))
+    frame.playerAssignmentString:SetText(VT:POI_GetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx))
     frame.playerAssignmentString:SetScale(0.25)
     frame.playerAssignmentString:Show()
 
@@ -577,7 +577,7 @@ local function POI_SetOptions(frame, type, poi)
     frame.playerAssignmentString:SetJustifyV("MIDDLE")
     frame.playerAssignmentString:SetPoint(poi.textAnchor or "LEFT", frame, poi.textAnchorTo or "RIGHT", 0, 0)
     frame.playerAssignmentString:SetTextColor(1, 1, 1, 1)
-    frame.playerAssignmentString:SetText(MDT:POI_GetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx))
+    frame.playerAssignmentString:SetText(VT:POI_GetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx))
     frame.playerAssignmentString:SetScale(0.4)
     frame.playerAssignmentString:Show()
 
@@ -598,7 +598,7 @@ local function POI_SetOptions(frame, type, poi)
     end)
   end
   if type == "brackenhideCage" then
-    local assignment = MDT:POI_GetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx)
+    local assignment = VT:POI_GetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx)
     frame.HighlightTexture:SetAtlas("vignettelootelite-locked")
     frame.Texture:SetAtlas("vignettelootelite-locked")
 
@@ -651,7 +651,7 @@ local function POI_SetOptions(frame, type, poi)
     end)
   end
   if type == "neltharusChain" then
-    local assignment = MDT:POI_GetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx)
+    local assignment = VT:POI_GetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx)
     frame.HighlightTexture:SetAtlas("QuestObjective")
     frame.Texture:SetAtlas("QuestObjective")
 
@@ -761,7 +761,7 @@ local function POI_SetOptions(frame, type, poi)
     end)
   end
   if type == "nwItem" then
-    local assignment = MDT:POI_GetPOIAssignment(MDT:GetCurrentSubLevel(), frame.poiIdx)
+    local assignment = VT:POI_GetPOIAssignment(VT:GetCurrentSubLevel(), frame.poiIdx)
     local itemInfo = {
       [1] = {
         name = L["Bloody Javelin"],
@@ -1206,15 +1206,15 @@ local function POI_SetOptions(frame, type, poi)
     frame.HighlightTexture:SetSize(size, size)
 
     local function shouldZoomIn()
-      local currentScale = MDTMapPanelFrame:GetScale()
+      local currentScale = VTMapPanelFrame:GetScale()
       return currentScale < poi.index
     end
 
     frame:SetScript("OnClick", function()
       if shouldZoomIn() then
-        MDT:SetViewPortPosition(poi.value1, poi.value2, poi.value3)
+        VT:SetViewPortPosition(poi.value1, poi.value2, poi.value3)
       else
-        MDT:ZoomMapToDefault()
+        VT:ZoomMapToDefault()
       end
     end)
     frame:SetScript("OnEnter", function()
@@ -1230,7 +1230,7 @@ local function POI_SetOptions(frame, type, poi)
   end
 
   --fullscreen sizes
-  local scale = MDT:GetScale()
+  local scale = VT:GetScale()
   frame:SetSize(frame:GetWidth() * scale, frame:GetHeight() * scale)
   if frame.Texture then frame.Texture:SetSize(frame.Texture:GetWidth() * scale, frame.Texture:GetHeight() * scale) end
   if frame.HighlightTexture then
@@ -1243,41 +1243,41 @@ end
 
 ---POI_HideAllPoints
 ---Used to hide all POIs during scaling changes to the map
-function MDT:POI_HideAllPoints()
+function VT:POI_HideAllPoints()
   for _, poiFrame in pairs(points) do
     poiFrame:Hide()
   end
 end
 
 ---POI_UpdateAll
-function MDT:POI_UpdateAll()
+function VT:POI_UpdateAll()
   twipe(points)
-  db = MDT:GetDB()
-  MDT.GetFramePool("MapLinkPinTemplate"):ReleaseAll()
-  MDT.GetFramePool("DeathReleasePinTemplate"):ReleaseAll()
-  MDT.GetFramePool("VignettePinTemplate"):ReleaseAll()
-  if not MDT.mapPOIs[db.currentDungeonIdx] then return end
-  local currentSublevel = MDT:GetCurrentSubLevel()
-  local pois = MDT.mapPOIs[db.currentDungeonIdx][currentSublevel]
+  db = VT:GetDB()
+  VT.GetFramePool("MapLinkPinTemplate"):ReleaseAll()
+  VT.GetFramePool("DeathReleasePinTemplate"):ReleaseAll()
+  VT.GetFramePool("VignettePinTemplate"):ReleaseAll()
+  if not VT.mapPOIs[db.currentDungeonIdx] then return end
+  local currentSublevel = VT:GetCurrentSubLevel()
+  local pois = VT.mapPOIs[db.currentDungeonIdx][currentSublevel]
   if not pois then return end
-  local preset = MDT:GetCurrentPreset()
-  local teeming = MDT:IsPresetTeeming(preset)
-  local scale = MDT:GetScale()
-  local week = MDT:GetEffectivePresetWeek(preset)
+  local preset = VT:GetCurrentPreset()
+  local teeming = VT:IsPresetTeeming(preset)
+  local scale = VT:GetScale()
+  local week = VT:GetEffectivePresetWeek(preset)
   for poiIdx, poi in pairs(pois) do
     if (not (poi.type == "nyalothaSpire" and (db.currentSeason ~= 4 or db.currentDifficulty < 10)))
         and ((not poi.weeks) or poi.weeks[week])
         and (not poi.season or poi.season == db.currentSeason)
         and (not poi.difficulty or poi.difficulty <= db.currentDifficulty)
     then
-      local poiFrame = MDT.GetFramePool(poi.template):Acquire()
+      local poiFrame = VT.GetFramePool(poi.template):Acquire()
       if poiFrame.playerAssignmentString then poiFrame.playerAssignmentString:Hide() end
       poiFrame.poiIdx = poiIdx
       POI_SetOptions(poiFrame, poi.type, poi)
       poiFrame.x = poi.x
       poiFrame.y = poi.y
       poiFrame:ClearAllPoints()
-      poiFrame:SetPoint("CENTER", MDT.main_frame.mapPanelTile1, "TOPLEFT", poi.x * scale, poi.y * scale)
+      poiFrame:SetPoint("CENTER", VT.main_frame.mapPanelTile1, "TOPLEFT", poi.x * scale, poi.y * scale)
       if not poiFrame.defaultHidden or db.devMode then poiFrame:Show() end
       if not teeming and poiFrame.teeming then
         poiFrame:Hide()
@@ -1287,7 +1287,7 @@ function MDT:POI_UpdateAll()
   end
 end
 
-function MDT:POI_GetFrameForPOI(poiIdx)
+function VT:POI_GetFrameForPOI(poiIdx)
   for _, poiFrame in pairs(points) do
     if poiFrame.poiIdx == poiIdx then
       return poiFrame
@@ -1333,8 +1333,8 @@ local function animateLine(self, elapsed)
       t = t - 1
     end
     tX, tY = getPointAlongALine(self:GetParent(), self.frameOneX, self.frameOneY, self.frameTwoX, self.frameTwoY, t)
-    tex:SetPoint("TOPLEFT", MDT.main_frame.mapPanelTile1, "TOPLEFT", tX - (self.sizeX / 2), tY - (self.sizeY / 2))
-    tex:SetPoint("BOTTOMRIGHT", MDT.main_frame.mapPanelTile1, "TOPLEFT", tX + (self.sizeX / 2), tY + (self.sizeY / 2))
+    tex:SetPoint("TOPLEFT", VT.main_frame.mapPanelTile1, "TOPLEFT", tX - (self.sizeX / 2), tY - (self.sizeY / 2))
+    tex:SetPoint("BOTTOMRIGHT", VT.main_frame.mapPanelTile1, "TOPLEFT", tX + (self.sizeX / 2), tY + (self.sizeY / 2))
     tex:SetPoint("CENTER", tX, tY)
     tex:SetRotation(rotation)
     tex:SetVertexColor(self.color[1], self.color[2], self.color[3], self.color[4])
@@ -1354,18 +1354,18 @@ local function animateLine(self, elapsed)
 end
 
 local function createAnimatedLine(parent)
-  local animatedLine = MDT.GetFramePool("MDTAnimatedLineTemplate"):Acquire()
+  local animatedLine = VT.GetFramePool("VTAnimatedLineTemplate"):Acquire()
   animatedLine:Show()
   animatedLine.phase = 0
   animatedLine.frames = {}
   return animatedLine
 end
 
-function MDT:ShowAnimatedLine(parent, frame1, frame2, sizeX, sizeY, gap, color, speed, selected, animatedLine)
+function VT:ShowAnimatedLine(parent, frame1, frame2, sizeX, sizeY, gap, color, speed, selected, animatedLine)
   if not (frame1 and frame2 and (not frame1:IsForbidden()) and (not frame1:IsForbidden())) then
     return nil
   end
-  texturePool = texturePool or CreateTexturePool(MDT.main_frame.mapPanelFrame, "OVERLAY", 7, nil)
+  texturePool = texturePool or CreateTexturePool(VT.main_frame.mapPanelFrame, "OVERLAY", 7, nil)
   animatedLine = animatedLine or createAnimatedLine(parent)
   animatedLine.frame1 = frame1
   animatedLine.frame2 = frame2
@@ -1376,8 +1376,8 @@ function MDT:ShowAnimatedLine(parent, frame1, frame2, sizeX, sizeY, gap, color, 
   animatedLine.color = color and color or { 1, 0, 1, 0.8, 0.2 } --corrupted color
   if selected then animatedLine.color = { 0.5, 1, 0.1, 1 } end
 
-  local scale = MDT:GetScale()
-  local mapSizex, mapSizey = MDT:GetDefaultMapPanelSize()
+  local scale = VT:GetScale()
+  local mapSizex, mapSizey = VT:GetDefaultMapPanelSize()
   animatedLine.frameOneX = ((mapSizex / 2) + frame1.x) * scale
   animatedLine.frameOneY = ((mapSizey / 2) + frame1.y) * scale
   animatedLine.frameTwoX = ((mapSizex / 2) + (frame2.adjustedX or frame2.x)) * scale
@@ -1391,8 +1391,8 @@ function MDT:ShowAnimatedLine(parent, frame1, frame2, sizeX, sizeY, gap, color, 
   return animatedLine
 end
 
-function MDT:KillAllAnimatedLines()
-  local linePool = MDT.GetFramePool("MDTAnimatedLineTemplate")
+function VT:KillAllAnimatedLines()
+  local linePool = VT.GetFramePool("VTAnimatedLineTemplate")
   local activeLines = linePool.active
   for _, animatedLine in pairs(activeLines) do
     animatedLine:SetScript("onUpdate", nil)
@@ -1413,42 +1413,42 @@ function MDT:KillAllAnimatedLines()
 end
 
 ---draws all lines from active npcs to spires/doors
-function MDT:DrawAllAnimatedLines()
+function VT:DrawAllAnimatedLines()
   local week = self:GetEffectivePresetWeek()
-  for _, blip in pairs(MDT:GetDungeonEnemyBlips()) do
+  for _, blip in pairs(VT:GetDungeonEnemyBlips()) do
     if not blip:IsShown() and blip.data.corrupted then
-      MDT:HideAnimatedLine(blip.animatedLine)
+      VT:HideAnimatedLine(blip.animatedLine)
     elseif blip.data.corrupted and blip.selected then
       local connectedFrame
-      local active = MDT.GetFramePool("VignettePinTemplate").active
+      local active = VT.GetFramePool("VignettePinTemplate").active
       for _, poiFrame in pairs(active) do
         if poiFrame.spireIndex and poiFrame.npcId and poiFrame.npcId == blip.data.id then
           connectedFrame = poiFrame
           break
         end
       end
-      local connectedDoor = MDT:FindConnectedDoor(blip.data.id)
+      local connectedDoor = VT:FindConnectedDoor(blip.data.id)
       connectedFrame = connectedDoor or connectedFrame
-      blip.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, connectedFrame, blip, nil, nil, nil, nil,
+      blip.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, connectedFrame, blip, nil, nil, nil, nil,
         nil, blip.selected)
       blip.spireFrame = connectedFrame
       connectedFrame.animatedLine = blip.animatedLine
     end
   end
   --draw lines from active spires to doors when their associated npc is dragged into other sublevel
-  local activeSpires = MDT.GetFramePool("VignettePinTemplate").active
+  local activeSpires = VT.GetFramePool("VignettePinTemplate").active
   for _, poiFrame in pairs(activeSpires) do
     if poiFrame.spireIndex and poiFrame.npcId and not poiFrame.isSpire and not poiFrame.animatedLine then
-      local connectedDoor = MDT:FindConnectedDoor(poiFrame.npcId, 1)
+      local connectedDoor = VT:FindConnectedDoor(poiFrame.npcId, 1)
       if connectedDoor then
-        poiFrame.animatedLine = MDT:ShowAnimatedLine(MDT.main_frame.mapPanelFrame, poiFrame, connectedDoor, nil, nil, nil
+        poiFrame.animatedLine = VT:ShowAnimatedLine(VT.main_frame.mapPanelFrame, poiFrame, connectedDoor, nil, nil, nil
         , nil, nil, not poiFrame.isSpire)
       end
     end
   end
 end
 
-function MDT:HideAnimatedLine(animatedLine)
+function VT:HideAnimatedLine(animatedLine)
   if not animatedLine then return end
   for i = 1, #animatedLine.frames do
     animatedLine.frames[i]:ClearAllPoints()
@@ -1457,12 +1457,12 @@ function MDT:HideAnimatedLine(animatedLine)
   animatedLine:Hide()
 end
 
-function MDT:FindConnectedDoor(npcId, numConnection)
+function VT:FindConnectedDoor(npcId, numConnection)
   local riftOffsets = self:GetRiftOffsets()
   local connection = riftOffsets and riftOffsets[npcId] and riftOffsets[npcId].connections and
       riftOffsets[npcId].connections[numConnection or #riftOffsets[npcId].connections] or nil
   if connection then
-    local activeDoors = MDT.GetFramePool("MapLinkPinTemplate").active
+    local activeDoors = VT.GetFramePool("MapLinkPinTemplate").active
     for _, poiFrame in pairs(activeDoors) do
       if poiFrame.poi and poiFrame.poi.connectionIndex == connection.connectionIndex then
         return poiFrame, riftOffsets[npcId].connections
@@ -1471,21 +1471,21 @@ function MDT:FindConnectedDoor(npcId, numConnection)
   end
 end
 
-function MDT:POI_CreateDropDown(frame)
-  frame.poiDropDown = CreateFrame("frame", "MDTPullButtonsOptionsDropDown", nil, "UIDropDownMenuTemplate")
+function VT:POI_CreateDropDown(frame)
+  frame.poiDropDown = CreateFrame("frame", "VTPullButtonsOptionsDropDown", nil, "UIDropDownMenuTemplate")
 end
 
-function MDT:POI_SetPOIAssignment(sublevel, poiIdx, value)
-  MDT:GetCurrentPreset().value.poiAssignments = MDT:GetCurrentPreset().value.poiAssignments or {}
-  MDT:GetCurrentPreset().value.poiAssignments[sublevel] = MDT:GetCurrentPreset().value.poiAssignments[sublevel] or {}
-  MDT:GetCurrentPreset().value.poiAssignments[sublevel][poiIdx] = value
-  if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
-    MDT:LiveSession_SendPOIAssignment(sublevel, poiIdx, value)
+function VT:POI_SetPOIAssignment(sublevel, poiIdx, value)
+  VT:GetCurrentPreset().value.poiAssignments = VT:GetCurrentPreset().value.poiAssignments or {}
+  VT:GetCurrentPreset().value.poiAssignments[sublevel] = VT:GetCurrentPreset().value.poiAssignments[sublevel] or {}
+  VT:GetCurrentPreset().value.poiAssignments[sublevel][poiIdx] = value
+  if VT.liveSessionActive and VT:GetCurrentPreset().uid == VT.livePresetUID then
+    VT:LiveSession_SendPOIAssignment(sublevel, poiIdx, value)
   end
 end
 
-function MDT:POI_GetPOIAssignment(sublevelIdx, poiIdx)
-  local sublevels = MDT:GetCurrentPreset().value.poiAssignments
+function VT:POI_GetPOIAssignment(sublevelIdx, poiIdx)
+  local sublevels = VT:GetCurrentPreset().value.poiAssignments
   if not sublevels then return end
   local assignments = sublevels[sublevelIdx]
   if not assignments then return end
